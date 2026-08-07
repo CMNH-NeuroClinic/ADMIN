@@ -1231,7 +1231,7 @@ let state = {
   addonZone: null, addonProcedures: new Set(),
   courseProgram: null, courseOption: null, coursePurchaseType: 'bundle', coursePatientType: 'OPD', courseTherapistType: 'pt'
 };
-let webhookUrl = 'https://script.google.com/macros/s/AKfycbwUncnjItPd93PuUCjpvZeYQqB4cVPRp88EmGAbYtftl6YuDDEphPJMiHje3ky-FW53nQ/exec';
+let webhookUrl = 'https://script.google.com/macros/s/AKfycbyd2aL8atlZw2hdO7NG0yP4dBN7DDCZAVu1EdD_LouRd3lpErIX04lBufWwkgnrWcfJgA/exec';
 let allRecords = [];
 let activeFilter = 'ทั้งหมด';
 let editingId = null;
@@ -2150,9 +2150,43 @@ filterOptions.forEach(f=>{
 document.getElementById('btnRefresh').addEventListener('click', loadRecords);
 document.getElementById('searchInput').addEventListener('input', renderRecords);
 document.getElementById('recordsBody').addEventListener('click', e=>{
-  const btn = e.target.closest('.icon-btn[data-edit-id]');
-  if(btn) editRecord(btn.dataset.editId);
+  const editBtn = e.target.closest('.icon-btn[data-edit-id]');
+  if(editBtn){ editRecord(editBtn.dataset.editId); return; }
+  const printBtn = e.target.closest('.icon-btn[data-print-id]');
+  if(printBtn){ reprintInvoice(printBtn.dataset.printId); return; }
 });
+
+function reprintInvoice(id){
+  const r = allRecords.find(rec => String(rec['id']) === String(id));
+  if(!r){ showToast('ไม่พบข้อมูลที่ต้องการพิมพ์', true); return; }
+
+  const payload = {
+    clientName: r['ชื่อผู้รับบริการ'] || '',
+    age: r['อายุ'] || '',
+    gender: r['เพศ'] || '',
+    address: r['ที่อยู่ให้บริการ'] || '',
+    contactName: r['ผู้ติดต่อ'] || '',
+    contactRelation: r['ความสัมพันธ์'] || '',
+    contactPhone: r['เบอร์โทรผู้ติดต่อ'] || '',
+    packageName: r['แพ็กเกจ'] || '',
+    serviceFormat: r['รูปแบบบริการ'] || '',
+    monthlyFee: r['ค่าบริการต่อเดือน (บาท)'] || '',
+    deposit: r['เงินประกันสัญญา (บาท)'] || '',
+    depositStatus: r['สถานะเงินประกัน'] || '',
+    startDate: r['วันเริ่มบริการ'] || '',
+    caregiver: r['เจ้าหน้าที่ผู้ดูแล'] || '',
+    serviceTypeLabel: r['ประเภทเคส'] || '',
+    zoneLabel: r['โซนบริการ'] || '',
+    procedureListText: r['รายการหัตถการ'] || '',
+    procedureTotal: r['ค่าบริการหัตถการ (บาท)'] || '',
+    courseProgramLabel: r['โปรแกรมคอร์ส'] || '',
+    courseOptionLabel: r['แพ็กเกจคอร์ส'] || '',
+    courseSessionsTotal: r['จำนวนครั้งทั้งหมด'] || '',
+    courseSessionsUsed: r['จำนวนครั้งที่ใช้ไป'] || '',
+    courseTotalPrice: r['ราคาคอร์สรวม (บาท)'] || ''
+  };
+  openInvoice(payload, r['id']);
+}
 
 function editRecord(id){
   const r = allRecords.find(rec => String(rec['id']) === String(id));
@@ -2393,6 +2427,9 @@ function renderRecords(){
       <td>${escapeHtml(r['เจ้าหน้าที่ผู้ดูแล']||'—')}</td>
       <td>
         <div class="row-actions">
+          <button class="icon-btn" data-print-id="${escapeHtml(r['id'])}" title="พิมพ์ใบสรุปย้อนหลัง">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9V3h9l3 3v3M6 18H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-2M6 14h12M6 21h12v-4H6v4Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
           <button class="icon-btn" data-edit-id="${escapeHtml(r['id'])}" title="แก้ไขข้อมูล">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
