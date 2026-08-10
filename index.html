@@ -615,12 +615,25 @@
     body.printing-table #printArea, body.printing-table #printArea *{visibility:visible;}
     body.printing-table #printArea{position:absolute; inset:0; display:block; padding:24px; background:#fff;}
   }
-  @media print{
+ @media print{
+    @page { size: A4 portrait; margin: 10mm 15mm; }
     body *{visibility:hidden;}
     #invoiceModal, #invoiceModal *{visibility:visible;}
-    #invoiceModal{position:absolute; inset:0; background:#fff; padding:0; display:block;}
-    .invoice-card{box-shadow:none; max-width:100%; border-radius:0;}
+    #invoiceModal{position:absolute; left:0; top:0; width:100%; background:#fff; padding:0; display:block; overflow:visible;}
+    .invoice-card{box-shadow:none; max-width:100%; border-radius:0; border:none; padding:0;}
+    .invoice-body{padding: 0;}
     .no-print{display:none !important;}
+    
+    /* โครงสร้างตารางเพื่อให้หัวกระดาษซ้ำ */
+    .inv-wrapper-table { width: 100%; border-collapse: collapse; border: none; }
+    .inv-thead { display: table-header-group; }
+    .inv-tbody { display: table-row-group; }
+    
+    /* ป้องกันกล่องข้อความหรือตารางโดนตัดขาดครึ่งหน้า */
+    .inv-cols, .inv-service-box, .inv-charges, .inv-charges tr, .inv-terms, .inv-signature, .inv-footer {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
   }
 
   .toast{
@@ -1094,7 +1107,7 @@
 
 <div class="modal-backdrop" id="invoiceModal">
   <div class="invoice-card paper-scope">
-    <div class="invoice-topbar no-print">
+    <div class="invoice-topbar no-print" data-html2canvas-ignore="true">
       <span>ใบสรุปแผนการดูแลและค่าบริการ</span>
       <div class="invoice-topbar-actions">
         <button class="btn btn-ghost" style="padding:8px 14px; font-size:12.5px;" id="btnCopyInvoice" type="button">คัดลอกข้อความ</button>
@@ -2031,8 +2044,7 @@ let lastInvoiceText = '';
 let lastInvoiceFilename = 'ใบสรุปแผนการดูแล.pdf';
 document.getElementById('btnCloseInvoice').addEventListener('click', ()=> invoiceModal.classList.remove('show'));
 document.getElementById('btnPrintInvoice').addEventListener('click', ()=>{
-  const card = document.querySelector('#invoiceModal .invoice-card');
-  exportElementToPDF(card, lastInvoiceFilename);
+  window.print();
 });
 document.getElementById('btnCopyInvoice').addEventListener('click', async ()=>{
   try{
@@ -2343,10 +2355,11 @@ function reprintInvoice(id){
     contactPhone: r['เบอร์โทรผู้ติดต่อ'] || '',
     packageName: r['แพ็กเกจ'] || '',
     serviceFormat: r['รูปแบบบริการ'] || '',
-    monthlyFee: r['ค่าบริการต่อเดือน (บาท)'] || '',
-    dailyRate: r['อัตรารายวัน (บาท)'] || '',
-    assessmentFee: r['ค่าประเมินหน้างาน (บาท)'] || '',
-    deposit: r['เงินประกันสัญญา (บาท)'] || '',
+    monthlyFee: r['ค่าบริการต่อเดือน (บาท)'] || r['ค่าบริการต่อเดือน'] || '',
+    dailyRate: r['อัตรารายวัน (บาท)'] || r['อัตรารายวัน'] || '',
+    assessmentFee: r['ค่าประเมินหน้างาน (บาท)'] || r['ค่าประเมินหน้างาน'] || '',
+    holidayChargeAmount: r['ค่าบริการวันหยุด (บาท)'] || r['ค่าบริการวันหยุดนักขัตฤกษ์'] || r['holidayChargeAmount'] || '',
+    deposit: r['เงินประกันสัญญา (บาท)'] || r['เงินประกันสัญญา'] || '',
     depositStatus: r['สถานะเงินประกัน'] || '',
     startDate: r['วันเริ่มบริการ'] || '',
     caregiver: r['เจ้าหน้าที่ผู้ดูแล'] || '',
@@ -2354,12 +2367,12 @@ function reprintInvoice(id){
     serviceTypeLabel: r['ประเภทเคส'] || '',
     zoneLabel: r['โซนบริการ'] || '',
     procedureListText: r['รายการหัตถการ'] || '',
-    procedureTotal: r['ค่าบริการหัตถการ (บาท)'] || '',
+    procedureTotal: r['ค่าบริการหัตถการ (บาท)'] || r['ค่าบริการหัตถการ'] || '',
     courseProgramLabel: r['โปรแกรมคอร์ส'] || '',
     courseOptionLabel: r['แพ็กเกจคอร์ส'] || '',
     courseSessionsTotal: r['จำนวนครั้งทั้งหมด'] || '',
     courseSessionsUsed: r['จำนวนครั้งที่ใช้ไป'] || '',
-    courseTotalPrice: r['ราคาคอร์สรวม (บาท)'] || ''
+    courseTotalPrice: r['ราคาคอร์สรวม (บาท)'] || r['ราคาคอร์สรวม'] || ''
   };
   openInvoice(payload, r['id']);
 }
@@ -2382,11 +2395,11 @@ function editRecord(id){
   document.getElementById('f_startDate').value = String(r['วันเริ่มบริการ'] || '').slice(0,10);
   document.getElementById('f_contractEndDate').value = String(r['วันครบกำหนดสัญญา'] || '').slice(0,10);
   document.getElementById('f_caregiver').value = r['เจ้าหน้าที่ผู้ดูแล'] || '';
-  document.getElementById('f_monthlyFee').value = r['ค่าบริการต่อเดือน (บาท)'] || '';
-  document.getElementById('f_dailyRate').value = r['อัตรารายวัน (บาท)'] || '';
-  document.getElementById('f_deposit').value = r['เงินประกันสัญญา (บาท)'] || 5000;
+  document.getElementById('f_monthlyFee').value = r['ค่าบริการต่อเดือน (บาท)'] || r['ค่าบริการต่อเดือน'] || '';
+  document.getElementById('f_dailyRate').value = r['อัตรารายวัน (บาท)'] || r['อัตรารายวัน'] || '';
+  document.getElementById('f_deposit').value = r['เงินประกันสัญญา (บาท)'] || r['เงินประกันสัญญา'] || 5000;
   document.getElementById('f_deposit').dataset.userEdited = '1';
-  if(Number(r['ค่าประเมินหน้างาน (บาท)']) > 0){
+  if(Number(r['ค่าประเมินหน้างาน (บาท)'] || r['ค่าประเมินหน้างาน']) > 0){
     document.getElementById('f_assessmentFee').checked = true;
     document.getElementById('assessmentFeeWrap').classList.add('checked');
   }
