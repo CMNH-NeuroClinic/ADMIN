@@ -2184,8 +2184,6 @@ function openInvoice(payload, refId){
     '',
     isPackage ? `ค่าบริการรายเดือน: ฿${fee.toLocaleString()}` : '',
     isPackage && assessmentFee ? `ค่าประเมินหน้างาน: ฿${assessmentFee.toLocaleString()}` : '',
-    isPackage ? `ค่าบริการรายเดือน: ฿${fee.toLocaleString()}` : '',
-    isPackage && assessmentFee ? `ค่าประเมินหน้างาน: ฿${assessmentFee.toLocaleString()}` : '',
     isPackage && holidayAmount ? `ค่าบริการวันหยุด/นักขัตฤกษ์: ฿${holidayAmount.toLocaleString()}` : '',
     isPackage && depositDue ? `เงินประกันสัญญา (ชำระครั้งแรก): ฿${deposit.toLocaleString()}` : (isPackage ? `เงินประกันสัญญา: ${payload.depositStatus||'—'}` : ''),
     procTotal ? `${isPackage ? 'บริการหัตถการเสริม' : 'ค่าบริการหัตถการ'} (${payload.zoneLabel||''}): ฿${procTotal.toLocaleString()}${procItems.length ? ' — ' + procItems.join(', ') : ''}` : '',
@@ -2399,6 +2397,7 @@ function editRecord(id){
     document.getElementById('holidayChargeWrap').classList.add('checked');
     document.getElementById('holidayAmountField').style.display = '';
     document.getElementById('f_holidayAmount').value = holidayAmt;
+    } // <---- เติมปีกกาปิดตรงนี้ครับ!
   document.getElementById('f_remarks').value = r['หมายเหตุ'] || '';
   document.getElementById('f_recordedBy').value = r['ผู้บันทึก'] || '';
 
