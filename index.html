@@ -2119,60 +2119,49 @@ function openInvoice(payload, refId){
     ].filter(Boolean).join('\n');
 
     document.getElementById('invoiceBody').innerHTML = `
-      <table class="inv-wrapper-table">
-        <thead class="inv-thead">
-          <tr><td>
-            <div class="inv-head" style="margin-bottom: 20px;">
-              <div class="inv-brand">
-                <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
-                <div>
-                  <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care')}</div>
-                  ${clinicFullNameLine(payload)}
-                  <div class="inv-brand-sub">ใบสรุปคอร์ส/โปรแกรมบริการ</div>
-                </div>
-              </div>
-              <div class="inv-meta">
-                เลขที่เอกสาร <b>${docNo}</b><br>
-                วันที่ออกเอกสาร <b>${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}</b>
-              </div>
-            </div>
-          </td></tr>
-        </thead>
-        <tbody class="inv-tbody">
-          <tr><td>
-            <div class="inv-cols">
-              <div>
-                <div class="inv-block-lbl">ผู้รับบริการ</div>
-                <div class="inv-line"><b>${escapeHtml(payload.clientName)}</b></div>
-                <div class="inv-line"><span>อายุ ${escapeHtml(payload.age||'—')} ปี · ${escapeHtml(payload.gender||'—')}</span></div>
-              </div>
-              <div>
-                <div class="inv-block-lbl">เรียนแจ้งถึงผู้ติดต่อ</div>
-                <div class="inv-line"><b>${escapeHtml(payload.contactName || '—')}</b> <span>${payload.contactRelation ? '('+escapeHtml(payload.contactRelation)+')' : ''}</span></div>
-                <div class="inv-line"><span>โทร ${escapeHtml(payload.contactPhone || '—')}</span></div>
-              </div>
-            </div>
-            <div class="inv-service-box">
-              <div class="inv-service-row"><span>โปรแกรม</span><b>${escapeHtml(payload.courseProgramLabel || '—')}</b></div>
-              <div class="inv-service-row"><span>แพ็กเกจคอร์ส</span><b>${escapeHtml(payload.courseOptionLabel || '—')}</b></div>
-              ${isSingleVisit ? '' : `<div class="inv-service-row"><span>จำนวนครั้ง</span><b>ใช้ไป ${used}/${total} · คงเหลือ ${remaining}</b></div>`}
-              <div class="inv-service-row"><span>เจ้าหน้าที่ผู้ดูแล</span><b>${escapeHtml(payload.caregiver || 'แจ้งภายหลัง')}</b></div>
-            </div>
-            <table class="inv-charges">
-              <thead><tr><th>รายการ</th><th style="text-align:right;">จำนวนเงิน (บาท)</th></tr></thead>
-              <tbody>
-                <tr><td>${escapeHtml(payload.courseOptionLabel||'คอร์สบริการ')}${isSingleVisit ? '' : ' ('+total+' ครั้ง)'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
-                <tr class="inv-total-row"><td>${isSingleVisit ? 'ยอดชำระ' : 'ยอดชำระทั้งคอร์ส'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
-              </tbody>
-            </table>
-            ${signatureBlockHtml(payload)}
-            <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care')} ดูแลคนที่คุณรัก</div>
-          </td></tr>
+      <div class="inv-head">
+        <div class="inv-brand">
+          <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
+          <div>
+            <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care')}</div>
+            ${clinicFullNameLine(payload)}
+            <div class="inv-brand-sub">ใบสรุปคอร์ส/โปรแกรมบริการ</div>
+          </div>
+        </div>
+        <div class="inv-meta">
+          เลขที่เอกสาร <b>${docNo}</b><br>
+          วันที่ออกเอกสาร <b>${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}</b>
+        </div>
+      </div>
+      <div class="inv-cols">
+        <div>
+          <div class="inv-block-lbl">ผู้รับบริการ</div>
+          <div class="inv-line"><b>${escapeHtml(payload.clientName)}</b></div>
+          <div class="inv-line"><span>อายุ ${escapeHtml(payload.age||'—')} ปี · ${escapeHtml(payload.gender||'—')}</span></div>
+        </div>
+        <div>
+          <div class="inv-block-lbl">เรียนแจ้งถึงผู้ติดต่อ</div>
+          <div class="inv-line"><b>${escapeHtml(payload.contactName || '—')}</b> <span>${payload.contactRelation ? '('+escapeHtml(payload.contactRelation)+')' : ''}</span></div>
+          <div class="inv-line"><span>โทร ${escapeHtml(payload.contactPhone || '—')}</span></div>
+        </div>
+      </div>
+      <div class="inv-service-box">
+        <div class="inv-service-row"><span>โปรแกรม</span><b>${escapeHtml(payload.courseProgramLabel || '—')}</b></div>
+        <div class="inv-service-row"><span>แพ็กเกจคอร์ส</span><b>${escapeHtml(payload.courseOptionLabel || '—')}</b></div>
+        ${isSingleVisit ? '' : `<div class="inv-service-row"><span>จำนวนครั้ง</span><b>ใช้ไป ${used}/${total} · คงเหลือ ${remaining}</b></div>`}
+        <div class="inv-service-row"><span>เจ้าหน้าที่ผู้ดูแล</span><b>${escapeHtml(payload.caregiver || 'แจ้งภายหลัง')}</b></div>
+      </div>
+      <table class="inv-charges">
+        <thead><tr><th>รายการ</th><th style="text-align:right;">จำนวนเงิน (บาท)</th></tr></thead>
+        <tbody>
+          <tr><td>${escapeHtml(payload.courseOptionLabel||'คอร์สบริการ')}${isSingleVisit ? '' : ' ('+total+' ครั้ง)'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
+          <tr class="inv-total-row"><td>${isSingleVisit ? 'ยอดชำระ' : 'ยอดชำระทั้งคอร์ส'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
         </tbody>
       </table>
+      ${signatureBlockHtml(payload)}
+      <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care')} ดูแลคนที่คุณรัก</div>
     `;
-  invoiceModal.classList.add('show');
-}
+    invoiceModal.classList.add('show');
     return;
   }
 
