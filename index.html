@@ -1939,7 +1939,7 @@ async function saveRecord(){
     monthlyFee: isPackage ? document.getElementById('f_monthlyFee').value : '',
     dailyRate: isPackage ? document.getElementById('f_dailyRate').value : '',
     assessmentFee: (isPackage && document.getElementById('f_assessmentFee').checked) ? 1000 : '',
-    ChargeActive: isPackage ? document.getElementById('f_holidayCharge').checked : false,
+    holidayChargeActive: isPackage ? document.getElementById('f_holidayCharge').checked : false,
     holidayChargeAmount: (isPackage && document.getElementById('f_holidayCharge').checked) ? document.getElementById('f_holidayAmount').value : '',
     deposit: isPackage ? document.getElementById('f_deposit').value : '',
     depositStatus: isPackage ? document.getElementById('f_depositStatus').value : '',
