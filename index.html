@@ -907,12 +907,21 @@
             <div class="field" style="margin-top:16px;">
               <label class="chip-check" style="display:inline-flex;" id="holidayChargeWrap">
                 <input type="checkbox" id="f_holidayCharge"><span class="box"></span>
-                รวมค่าบริการวันหยุดนักขัตฤกษ์และวันหยุดปกติ (1 วัน/สัปดาห์)
+                คิดค่าบริการวันหยุดนักขัตฤกษ์/วันหยุดปกติเพิ่ม
               </label>
             </div>
-            <div class="field" id="holidayAmountField" style="display:none; margin-top:8px;">
-              <label>ยอดเงินที่คิดเพิ่ม (บาท)</label>
-              <input type="number" id="f_holidayAmount" placeholder="เช่น 1500 หรือ 2000">
+            <div class="field-grid cols-2" id="holidayAmountField" style="display:none; margin-top:8px;">
+              <div class="field">
+                <label>ราคาต่อวัน (บาท)</label>
+                <input type="number" id="f_holidayRate" placeholder="เช่น 500 หรือ 800" min="0">
+              </div>
+              <div class="field">
+                <label>จำนวนวัน</label>
+                <input type="number" id="f_holidayDays" value="1" min="1" step="1">
+              </div>
+            </div>
+            <div class="field" id="holidayTotalRow" style="display:none; margin-top:2px;">
+              <span class="helptext">ยอดรวมค่าบริการวันหยุด: <b id="holidayTotalDisplay" style="color:var(--teal-700);">฿0</b></span>
             </div>
           </div>
 
@@ -1018,7 +1027,7 @@
           <div class="section-head">
             <span class="section-num">05</span>
             <span class="section-title">กำหนดการ, เจ้าหน้าที่ และการเงิน</span>
-            <span class="section-hint" id="billingEntityBadge">ออกเอกสารในนาม: CMCC HOME CARE</span>
+            <span class="section-hint" id="billingEntityBadge">ออกเอกสารในนาม: CMCC Home Care</span>
           </div>
           <div class="field-grid cols-3">
             <div class="field">
@@ -1567,14 +1576,28 @@ function updateBillingEntity(){
 document.getElementById('f_assessmentFee').addEventListener('change', e=>{
   document.getElementById('assessmentFeeWrap').classList.toggle('checked', e.target.checked);
 });
-/* ============ HOLIDAY CHARGE CHECKBOX ============ */
+/* ============ HOLIDAY CHARGE (ราคาต่อวัน × จำนวนวัน) ============ */
+function getHolidayTotal(){
+  if(!document.getElementById('f_holidayCharge').checked) return 0;
+  const rate = Number(document.getElementById('f_holidayRate').value) || 0;
+  const days = Number(document.getElementById('f_holidayDays').value) || 0;
+  return rate * days;
+}
+function refreshHolidayTotal(){
+  const total = getHolidayTotal();
+  document.getElementById('holidayTotalDisplay').textContent = '฿' + total.toLocaleString();
+  document.getElementById('holidayTotalRow').style.display = document.getElementById('f_holidayCharge').checked ? '' : 'none';
+}
 document.getElementById('f_holidayCharge').addEventListener('change', e=>{
   const isChecked = e.target.checked;
   document.getElementById('holidayChargeWrap').classList.toggle('checked', isChecked);
   document.getElementById('holidayAmountField').style.display = isChecked ? '' : 'none';
+  if(isChecked && !document.getElementById('f_holidayDays').value) document.getElementById('f_holidayDays').value = 1;
+  refreshHolidayTotal();
   updateSummary();
 });
-document.getElementById('f_holidayAmount').addEventListener('input', updateSummary);
+document.getElementById('f_holidayRate').addEventListener('input', ()=>{ refreshHolidayTotal(); updateSummary(); });
+document.getElementById('f_holidayDays').addEventListener('input', ()=>{ refreshHolidayTotal(); updateSummary(); });
 /* ============ ZONE PICKERS (reusable for primary procedure + addon) ============ */
 function buildZoneRow(container, onSelect){
   container.innerHTML = '';
@@ -1906,8 +1929,8 @@ function updateSummary(){
   const priceRange = fmt ? p.price[fmt] : null;
   const dailyRate = fmt ? p.daily[fmt] : null;
   const addonTotal = procSetTotal(state.addonZone, state.addonProcedures);
-  // ดึงยอดเงินวันหยุดมาคำนวณ
-  const holidayAmt = document.getElementById('f_holidayCharge').checked ? (Number(document.getElementById('f_holidayAmount').value) || 0) : 0;
+  // ดึงยอดเงินวันหยุดมาคำนวณ (ราคาต่อวัน × จำนวนวัน)
+  const holidayAmt = getHolidayTotal();
 
   body.innerHTML = `
     <div class="clip-header">
@@ -1974,6 +1997,11 @@ function resetForm(){
   document.getElementById('f_depositStatus').selectedIndex = 0;
   document.getElementById('f_assessmentFee').checked = false;
   document.getElementById('assessmentFeeWrap').classList.remove('checked');
+  document.getElementById('f_holidayCharge').checked = false;
+  document.getElementById('holidayChargeWrap').classList.remove('checked');
+  document.getElementById('holidayAmountField').style.display = 'none';
+  document.getElementById('holidayTotalRow').style.display = 'none';
+  document.getElementById('f_holidayDays').value = 1;
   document.querySelectorAll('.pkg-card, .radio-chip, .chip-check, .proc-row').forEach(el=>el.classList.remove('checked'));
   document.querySelectorAll('#formatRow input, #equipWrap input').forEach(el=>el.checked=false);
   state = {
@@ -2206,6 +2234,12 @@ function restoreDraft(draft){
     if(el.type === 'checkbox') el.checked = !!val;
     else el.value = val;
   });
+  // sync visual state ของช่องที่ผูกกับ checkbox (ไม่ผ่าน change event ตอนตั้งค่าด้านบน)
+  document.getElementById('assessmentFeeWrap').classList.toggle('checked', document.getElementById('f_assessmentFee').checked);
+  const holidayOn = document.getElementById('f_holidayCharge').checked;
+  document.getElementById('holidayChargeWrap').classList.toggle('checked', holidayOn);
+  document.getElementById('holidayAmountField').style.display = holidayOn ? '' : 'none';
+  refreshHolidayTotal();
   applyDraftState(draft.state);
   document.querySelectorAll('.tab-btn, .bn-btn').forEach(b=>b.classList.toggle('active', b.dataset.view === 'entry'));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -2328,7 +2362,9 @@ async function saveRecord(){
     dailyRate: isPackage ? document.getElementById('f_dailyRate').value : '',
     assessmentFee: (isPackage && document.getElementById('f_assessmentFee').checked) ? 1000 : '',
     holidayChargeActive: isPackage ? document.getElementById('f_holidayCharge').checked : false,
-    holidayChargeAmount: (isPackage && document.getElementById('f_holidayCharge').checked) ? document.getElementById('f_holidayAmount').value : '',
+    holidayChargeRate: (isPackage && document.getElementById('f_holidayCharge').checked) ? document.getElementById('f_holidayRate').value : '',
+    holidayChargeDays: (isPackage && document.getElementById('f_holidayCharge').checked) ? document.getElementById('f_holidayDays').value : '',
+    holidayChargeAmount: isPackage ? getHolidayTotal() || '' : '',
     deposit: isPackage ? document.getElementById('f_deposit').value : '',
     depositStatus: isPackage ? document.getElementById('f_depositStatus').value : '',
     remarks: document.getElementById('f_remarks').value,
@@ -2559,7 +2595,10 @@ function openInvoice(payload, refId){
   const procTotal = Number(payload.procedureTotal) || 0;
   const assessmentFee = Number(payload.assessmentFee) || 0;
   // เพิ่มค่าวันหยุดและบวกเข้ายอดรวม
-  const holidayAmount = Number(payload.holidayChargeAmount) || 0;
+  const holidayRate = Number(payload.holidayChargeRate) || 0;
+  const holidayDays = Number(payload.holidayChargeDays) || 0;
+  const holidayAmount = Number(payload.holidayChargeAmount) || (holidayRate * holidayDays) || 0;
+  const holidayBreakdown = holidayRate && holidayDays ? `฿${holidayRate.toLocaleString()} × ${holidayDays} วัน = ฿${holidayAmount.toLocaleString()}` : `฿${holidayAmount.toLocaleString()}`;
   const dailyRate = Number(payload.dailyRate) || 0;
   const total = isPackage ? (fee + (depositDue ? deposit : 0) + procTotal + assessmentFee + holidayAmount) : procTotal;
   const includes = p ? p.includes : [];
@@ -2582,7 +2621,7 @@ function openInvoice(payload, refId){
     '',
     isPackage ? `ค่าบริการรายเดือน: ฿${fee.toLocaleString()}` : '',
     isPackage && assessmentFee ? `ค่าประเมินหน้างาน: ฿${assessmentFee.toLocaleString()}` : '',
-    isPackage && holidayAmount ? `ค่าบริการวันหยุด/นักขัตฤกษ์: ฿${holidayAmount.toLocaleString()}` : '',
+    isPackage && holidayAmount ? `ค่าบริการวันหยุด/นักขัตฤกษ์: ${holidayBreakdown}` : '',
     isPackage && depositDue ? `เงินประกันสัญญา (ชำระครั้งแรก): ฿${deposit.toLocaleString()}` : (isPackage ? `เงินประกันสัญญา: ${payload.depositStatus||'—'}` : ''),
     procTotal ? `${isPackage ? 'บริการหัตถการเสริม' : 'ค่าบริการหัตถการ'} (${payload.zoneLabel||''}): ฿${procTotal.toLocaleString()}${procItems.length ? ' — ' + procItems.join(', ') : ''}` : '',
     `ยอดชำระในการเริ่มบริการครั้งนี้: ฿${total.toLocaleString()}`,
@@ -2658,7 +2697,7 @@ function openInvoice(payload, refId){
       <tbody>
         ${isPackage ? `
         <tr><td>ค่าบริการรายเดือน (${escapeHtml(payload.serviceFormat||'')})</td><td class="amt">฿${fee.toLocaleString()}</td></tr>
-        ${holidayAmount ? `<tr><td>ค่าบริการวันหยุดนักขัตฤกษ์/วันหยุดปกติ</td><td class="amt">฿${holidayAmount.toLocaleString()}</td></tr>` : ''}
+        ${holidayAmount ? `<tr><td>ค่าบริการวันหยุดนักขัตฤกษ์/วันหยุดปกติ${holidayRate && holidayDays ? `<br><span style="font-size:11px; color:var(--ink-faint);">฿${holidayRate.toLocaleString()}/วัน × ${holidayDays} วัน</span>` : ''}</td><td class="amt">฿${holidayAmount.toLocaleString()}</td></tr>` : ''}
         ${assessmentFee ? `<tr><td>ค่าประเมินหน้างาน</td><td class="amt">฿${assessmentFee.toLocaleString()}</td></tr>` : ''}
         ${depositDue ? `<tr><td>เงินประกันสัญญา (ชำระครั้งแรก)</td><td class="amt">฿${deposit.toLocaleString()}</td></tr>` : `<tr><td>เงินประกันสัญญา</td><td class="amt" style="color:var(--ink-faint);">${escapeHtml(payload.depositStatus||'—')}</td></tr>`}
         ` : ''}
@@ -2757,6 +2796,8 @@ function reprintInvoice(id){
     monthlyFee: r['ค่าบริการต่อเดือน (บาท)'] || r['ค่าบริการต่อเดือน'] || '',
     dailyRate: r['อัตรารายวัน (บาท)'] || r['อัตรารายวัน'] || r['dailyRate'] || '',
     assessmentFee: r['ค่าประเมินหน้างาน (บาท)'] || r['ค่าประเมินหน้างาน'] || r['assessmentFee'] || '',
+    holidayChargeRate: r['อัตราค่าบริการวันหยุด (บาท/วัน)'] || '',
+    holidayChargeDays: r['จำนวนวันที่คิดเพิ่ม'] || '',
     holidayChargeAmount: r['ค่าบริการวันหยุด (บาท)'] || r['ค่าบริการวันหยุดนักขัตฤกษ์'] || r['holidayChargeAmount'] || '',
     deposit: r['เงินประกันสัญญา (บาท)'] || r['เงินประกันสัญญา'] || '',
     depositStatus: r['สถานะเงินประกัน'] || '',
@@ -2796,13 +2837,23 @@ function fillFormFromRecord(r){
     document.getElementById('f_assessmentFee').checked = true;
     document.getElementById('assessmentFeeWrap').classList.add('checked');
   }
-  // สมมติว่าใน Google Sheet ตั้งชื่อคอลัมน์ว่า "ค่าบริการวันหยุด (บาท)"
-  const holidayAmt = Number(r['ค่าบริการวันหยุด (บาท)'] || r['holidayChargeAmount']);
-  if(holidayAmt > 0){
+  // รองรับทั้งข้อมูลใหม่ (แยกอัตรา/วัน) และข้อมูลเก่าที่มีแต่ยอดรวม
+  const holidayRate = Number(r['อัตราค่าบริการวันหยุด (บาท/วัน)']);
+  const holidayDays = Number(r['จำนวนวันที่คิดเพิ่ม']);
+  const holidayTotalOld = Number(r['ค่าบริการวันหยุด (บาท)'] || r['holidayChargeAmount']);
+  if(holidayRate > 0 || holidayTotalOld > 0){
     document.getElementById('f_holidayCharge').checked = true;
     document.getElementById('holidayChargeWrap').classList.add('checked');
     document.getElementById('holidayAmountField').style.display = '';
-    document.getElementById('f_holidayAmount').value = holidayAmt;
+    if(holidayRate > 0){
+      document.getElementById('f_holidayRate').value = holidayRate;
+      document.getElementById('f_holidayDays').value = holidayDays > 0 ? holidayDays : 1;
+    } else {
+      // ข้อมูลเก่าที่มีแต่ยอดรวม: ใส่เป็นราคาต่อวัน จำนวน 1 วัน ให้แก้ไขต่อได้
+      document.getElementById('f_holidayRate').value = holidayTotalOld;
+      document.getElementById('f_holidayDays').value = 1;
+    }
+    refreshHolidayTotal();
   }
   document.getElementById('f_remarks').value = r['หมายเหตุ'] || '';
   document.getElementById('f_recordedBy').value = r['ผู้บันทึก'] || '';
