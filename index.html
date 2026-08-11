@@ -171,6 +171,17 @@
     .tabs{ display:none; }
   }
 
+  /* ---------- mobile sticky save bar (entry form only) ---------- */
+  .mobile-save-bar{ display:none; }
+  @media (max-width:640px){
+    .mobile-save-bar.show{
+      display:flex; gap:10px; position:fixed; left:12px; right:12px; bottom:82px; z-index:55;
+      background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow-pop);
+      padding:10px 12px;
+    }
+    .mobile-save-bar .btn{ flex:1; justify-content:center; padding:11px 10px; font-size:13px; }
+  }
+
   /* ---------- home landing: hero + quick-start grid ---------- */
   .hero-card{
     background:var(--gradient-primary); background-size:160% 160%; background-position:30% 50%;
@@ -229,6 +240,21 @@
     border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:13.5px; font-weight:600;
   }
 
+  .section-jump-nav{
+    display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
+    position:sticky; top:0; z-index:35; background:var(--paper);
+    padding:10px 2px 12px; margin-bottom:6px; scrollbar-width:none;
+  }
+  .section-jump-nav::-webkit-scrollbar{ display:none; }
+  .section-jump-nav a{
+    flex-shrink:0; text-decoration:none; font-size:12px; font-weight:600; color:var(--ink-soft);
+    background:var(--surface); border:1px solid var(--line); border-radius:999px;
+    padding:7px 13px; box-shadow:var(--shadow-card); transition:color .15s, border-color .15s;
+    white-space:nowrap;
+  }
+  .section-jump-nav a:hover{ color:var(--teal-700); border-color:var(--teal-600); }
+  .section-jump-nav a.active{ color:#fff; background:var(--gradient-primary); border-color:transparent; }
+
   .section-card{
     background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
     padding:24px 26px; margin-bottom:18px; box-shadow:var(--shadow-card);
@@ -265,6 +291,12 @@
   input:focus, select:focus, textarea:focus{box-shadow:inset 3px 4px 8px rgba(61,36,103,.14), inset -2px -2px 5px rgba(255,255,255,.9), 0 0 0 3.5px rgba(79,209,232,.4);}
   textarea{resize:vertical; min-height:64px;}
   .helptext{font-size:11.5px; color:var(--ink-faint);}
+  input.field-invalid, select.field-invalid, textarea.field-invalid{
+    box-shadow:inset 3px 4px 8px rgba(61,36,103,.14), inset -2px -2px 5px rgba(255,255,255,.9), 0 0 0 3px var(--rose);
+    animation:shakeInvalid .32s;
+  }
+  @keyframes shakeInvalid{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);} }
+  div.field-invalid{ box-shadow:0 0 0 3px var(--rose); border-radius:14px; animation:shakeInvalid .32s; }
 
   .radio-row{display:flex; gap:10px; flex-wrap:wrap;}
   .radio-chip{
@@ -279,6 +311,31 @@
   .radio-chip.checked{background:var(--teal-100); color:var(--teal-900); box-shadow:var(--clay-inset), 0 0 0 2px var(--teal-600);}
   .radio-chip.checked .dot{border-color:var(--teal-600);}
   .radio-chip.checked .dot::after{content:''; position:absolute; inset:2.5px; border-radius:50%; background:var(--teal-600);}
+
+  /* case-type tab bar (ประเภทเคส) — segmented control style */
+  .case-tabs{
+    display:flex; gap:6px; background:var(--paper-dim); padding:6px; border-radius:20px;
+    box-shadow:var(--clay-inset); margin-bottom:2px;
+  }
+  .case-tabs .radio-chip{
+    flex:1; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+    gap:5px; padding:14px 6px; border-radius:15px; background:transparent; box-shadow:none;
+    font-size:12px; line-height:1.3; color:var(--ink-soft);
+  }
+  .case-tabs .radio-chip:active{box-shadow:none; transform:scale(.97);}
+  .case-tabs .radio-chip .dot{display:none;}
+  .case-tabs .radio-chip .case-tab-icon{font-size:19px;}
+  .case-tabs .radio-chip.checked{
+    background:var(--gradient-primary); background-size:160% 160%; color:#fff;
+    box-shadow:0 4px 14px -4px rgba(108,99,255,.55);
+  }
+  .case-tabs .radio-chip.checked .case-tab-label{text-shadow:0 1px 3px rgba(0,0,0,.25);}
+  .case-panel{animation:caseFade .3s cubic-bezier(.22,1,.36,1); border-top:1.5px dashed var(--line); padding-top:18px; margin-top:6px;}
+  @keyframes caseFade{from{opacity:0; transform:translateY(7px);} to{opacity:1; transform:translateY(0);}}
+  .case-panel-label{
+    display:inline-flex; align-items:center; gap:6px; font-family:'Taviraj'; font-weight:700; font-size:14px;
+    color:var(--teal-900); text-shadow:var(--lift-dark); margin-bottom:14px;
+  }
 
   .chip-check{
     border:none; border-radius:12px; padding:8px 13px;
@@ -410,6 +467,12 @@
     font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.4px;
     border-bottom:1px solid var(--line); white-space:nowrap;
   }
+  thead th.sortable{ cursor:pointer; user-select:none; transition:color .15s; }
+  thead th.sortable:hover{ color:var(--teal-700); }
+  thead th.sortable .sort-arrow{ display:inline-block; width:10px; margin-left:2px; font-size:10px; opacity:.7; }
+  thead th.sortable.sort-asc .sort-arrow::after{ content:'▲'; }
+  thead th.sortable.sort-desc .sort-arrow::after{ content:'▼'; }
+  #btnSortContractEnd.active{ background:var(--teal-900); color:#fff; }
   tbody td{padding:13px 16px; border-bottom:1px solid var(--line); vertical-align:top;}
   tbody tr:last-child td{border-bottom:none;}
   tbody tr:hover{background:var(--teal-100);}
@@ -527,6 +590,22 @@
 
   #printArea{display:none;}
 
+  /* ---------- draft restore bar ---------- */
+  .draft-restore-bar{
+    position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:150;
+    background:var(--surface); border:1.5px solid var(--teal-600); border-radius:14px;
+    box-shadow:var(--shadow-pop); padding:12px 16px; display:flex; align-items:center; gap:16px;
+    font-size:13px; color:var(--ink); max-width:calc(100vw - 32px);
+  }
+  .draft-restore-bar b{color:var(--teal-900);}
+  .draft-restore-actions{display:flex; gap:8px; flex-shrink:0;}
+  .draft-restore-actions button{
+    border:none; border-radius:9px; padding:7px 12px; font-size:12.5px; font-weight:600; cursor:pointer;
+  }
+  #btnDraftRestore{background:var(--gradient-primary); color:#fff;}
+  #btnDraftDiscard{background:transparent; color:var(--ink-faint);}
+  @media (max-width:640px){ .draft-restore-bar{ flex-direction:column; align-items:flex-start; gap:10px; top:8px; } }
+
   /* ---------- AI chat assistant ---------- */
   .chat-fab{
     position:fixed; right:22px; bottom:26px; z-index:80;
@@ -618,11 +697,11 @@
  @media print{
     @page { size: A4 portrait; margin: 10mm 15mm; }
     body *{visibility:hidden;}
-    #invoiceModal, #invoiceModal *{visibility:visible;}
+    #invoiceModal, #invoiceModal .invoice-card, #invoiceModal .invoice-body, #invoiceModal .invoice-body *{visibility:visible;}
     #invoiceModal{position:absolute; left:0; top:0; width:100%; background:#fff; padding:0; display:block; overflow:visible;}
     .invoice-card{box-shadow:none; max-width:100%; border-radius:0; border:none; padding:0;}
     .invoice-body{padding: 0;}
-    .no-print{display:none !important;}
+    .invoice-topbar, .no-print{display:none !important; visibility:hidden !important;}
     
     /* โครงสร้างตารางเพื่อให้หัวกระดาษซ้ำ */
     .inv-wrapper-table { width: 100%; border-collapse: collapse; border: none; }
@@ -630,10 +709,15 @@
     .inv-tbody { display: table-row-group; }
     
     /* ป้องกันกล่องข้อความหรือตารางโดนตัดขาดครึ่งหน้า */
-    .inv-cols, .inv-service-box, .inv-charges, .inv-charges tr, .inv-terms, .inv-signature, .inv-footer {
+    .inv-cols, .inv-service-box, .inv-charges, .inv-charges tr, .inv-terms, .inv-signature, .inv-footer, .inv-checklist {
       page-break-inside: avoid;
       break-inside: avoid;
     }
+    /* multi-column list ตัดหน้ากระดาษไม่สวย จึงบังคับเป็นคอลัมน์เดียวตอนพิมพ์ */
+    .inv-checklist{columns:1;}
+    /* กันเนื้อหาล้นขอบกระดาษ A4 */
+    .invoice-body{width:100%; max-width:100%; box-sizing:border-box;}
+    .inv-wrapper-table, .inv-wrapper-table td{width:100%;}
   }
 
   .toast{
@@ -734,10 +818,17 @@
       <span id="editBannerText"></span>
       <button class="btn btn-ghost" id="btnCancelEdit" type="button" style="padding:6px 14px; font-size:12.5px;">ยกเลิกการแก้ไข</button>
     </div>
+    <div class="section-jump-nav" id="sectionJumpNav">
+      <a href="#sec-01" data-jump="sec-01">01 ผู้รับบริการ</a>
+      <a href="#sec-02" data-jump="sec-02">02 ประเภทเคส</a>
+      <a href="#formatEquipSection" data-jump="formatEquipSection" class="package-only">03 รูปแบบ/อุปกรณ์</a>
+      <a href="#addonSection" data-jump="addonSection" class="package-only">04 หัตถการเสริม</a>
+      <a href="#sec-05" data-jump="sec-05">05 กำหนดการ/การเงิน</a>
+    </div>
     <div class="entry-grid">
       <div>
 
-        <div class="section-card">
+        <div class="section-card" id="sec-01">
           <div class="section-head">
             <span class="section-num">01</span>
             <span class="section-title">ข้อมูลผู้รับบริการ</span>
@@ -778,30 +869,37 @@
           </div>
         </div>
 
-        <div class="section-card">
+        <div class="section-card" id="sec-02">
           <div class="section-head">
             <span class="section-num">02</span>
             <span class="section-title">ประเภทเคสและแพ็กเกจ</span>
           </div>
           <div class="field" style="margin-bottom:16px;">
             <label>ประเภทเคส<span class="req">*</span></label>
-            <div class="radio-row" id="serviceTypeRow">
+            <div class="case-tabs" id="serviceTypeRow">
               <label class="radio-chip checked" data-val="package">
                 <input type="radio" name="serviceType" value="package" checked>
-                <span class="dot"></span> แพ็กเกจรายเดือน
+                <span class="dot"></span>
+                <span class="case-tab-icon">📅</span>
+                <span class="case-tab-label">แพ็กเกจ<br>รายเดือน</span>
               </label>
               <label class="radio-chip" data-val="procedure">
                 <input type="radio" name="serviceType" value="procedure">
-                <span class="dot"></span> บริการหัตถการครั้งเดียว
+                <span class="dot"></span>
+                <span class="case-tab-icon">💉</span>
+                <span class="case-tab-label">บริการหัตถการ<br>ครั้งเดียว</span>
               </label>
               <label class="radio-chip" data-val="course">
                 <input type="radio" name="serviceType" value="course">
-                <span class="dot"></span> คอร์ส/โปรแกรมบริการ
+                <span class="dot"></span>
+                <span class="case-tab-icon">🎟️</span>
+                <span class="case-tab-label">คอร์ส/โปรแกรม<br>บริการ</span>
               </label>
             </div>
           </div>
 
-         <div id="packagePanel">
+         <div id="packagePanel" class="case-panel">
+            <div class="case-panel-label">📅 แพ็กเกจรายเดือน</div>
             <label style="display:block; margin-bottom:10px;">เลือกกลุ่มที่ตรงกับอาการผู้รับบริการ</label>
             <div class="pkg-grid" id="pkgGrid"></div>
             
@@ -818,7 +916,8 @@
             </div>
           </div>
 
-          <div id="procedurePanel" style="display:none;">
+          <div id="procedurePanel" class="case-panel" style="display:none;">
+            <div class="case-panel-label">💉 บริการหัตถการครั้งเดียว</div>
             <div class="field" style="margin-bottom:14px;">
               <label>โซนบริการ (ตามระยะทางจากศูนย์)<span class="req">*</span></label>
               <div class="radio-row" id="procZoneRow"></div>
@@ -830,7 +929,8 @@
             <div class="proc-subtotal" id="procSubtotal">เลือกโซนและหัตถการเพื่อดูยอดรวม</div>
           </div>
 
-          <div id="coursePanel" style="display:none;">
+          <div id="coursePanel" class="case-panel" style="display:none;">
+            <div class="case-panel-label">🎟️ คอร์ส/โปรแกรมบริการ</div>
             <div class="field" style="margin-bottom:14px;">
               <label>ประเภทโปรแกรม<span class="req">*</span></label>
               <div class="radio-row" id="courseProgramRow"></div>
@@ -914,7 +1014,7 @@
           <div class="proc-subtotal" id="addonSubtotal">ไม่มีบริการหัตถการเสริม</div>
         </div>
 
-        <div class="section-card">
+        <div class="section-card" id="sec-05">
           <div class="section-head">
             <span class="section-num">05</span>
             <span class="section-title">กำหนดการ, เจ้าหน้าที่ และการเงิน</span>
@@ -984,11 +1084,13 @@
           <div class="field" style="margin-top:14px;">
             <label>ผู้บันทึกข้อมูล</label>
             <input type="text" id="f_recordedBy" placeholder="ชื่อแอดมินผู้บันทึก">
+            <span class="helptext" id="smartDefaultHint" style="display:none;">🧠 เติมอัตโนมัติจากรายการล่าสุด — แก้ไขได้ตามต้องการ</span>
           </div>
         </div>
 
         <div class="btn-row">
           <button class="btn btn-ghost" id="btnReset" type="button">ล้างฟอร์ม</button>
+          <button class="btn btn-danger-text" id="btnClearSmartDefault" type="button" style="display:none;">ล้างค่าที่จำไว้</button>
           <button class="btn btn-primary" id="btnSave" type="button">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             บันทึกและส่งไปยัง Google Sheet
@@ -1030,6 +1132,10 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 15a7 7 0 0 0 12.4 2.5M18.5 9a7 7 0 0 0-12.4-2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         รีเฟรชจาก Sheet
       </button>
+      <button class="btn btn-ghost" id="btnSortContractEnd" type="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg>
+        ใกล้ครบสัญญาก่อน
+      </button>
     </div>
     <div class="filter-chips" id="filterChips" style="margin-bottom:16px;"></div>
     <div class="table-card">
@@ -1037,13 +1143,13 @@
       <table>
         <thead>
           <tr>
-            <th>ผู้รับบริการ</th>
-            <th>แพ็กเกจ</th>
-            <th>รูปแบบ</th>
-            <th>เริ่มบริการ</th>
-            <th>สถานะ</th>
-            <th>ค่าบริการ/เดือน</th>
-            <th>เจ้าหน้าที่</th>
+            <th data-sort="ชื่อผู้รับบริการ" class="sortable">ผู้รับบริการ<span class="sort-arrow"></span></th>
+            <th data-sort="แพ็กเกจ" class="sortable">แพ็กเกจ<span class="sort-arrow"></span></th>
+            <th data-sort="รูปแบบบริการ" class="sortable">รูปแบบ<span class="sort-arrow"></span></th>
+            <th data-sort="วันเริ่มบริการ" class="sortable">เริ่มบริการ<span class="sort-arrow"></span></th>
+            <th data-sort="สถานะ" class="sortable">สถานะ<span class="sort-arrow"></span></th>
+            <th data-sort="ค่าบริการต่อเดือน (บาท)" class="sortable">ค่าบริการ/เดือน<span class="sort-arrow"></span></th>
+            <th data-sort="เจ้าหน้าที่ผู้ดูแล" class="sortable">เจ้าหน้าที่<span class="sort-arrow"></span></th>
             <th>จัดการ</th>
           </tr>
         </thead>
@@ -1150,6 +1256,11 @@
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 12h15M13 6l6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
   </div>
+</div>
+
+<div class="mobile-save-bar no-print" id="mobileSaveBar">
+  <button class="btn btn-ghost" id="btnMobileReset" type="button">ล้างฟอร์ม</button>
+  <button class="btn btn-primary" id="btnMobileSave" type="button">บันทึก</button>
 </div>
 
 <nav class="bottom-nav no-print" id="bottomNav">
@@ -1299,6 +1410,7 @@ function switchTab(viewName){
   if(viewName === 'entry') showEntryHome();
   if(viewName === 'records') loadRecords();
   if(viewName === 'dashboard'){ loadRecords().then(renderDashboard); loadHistory(); }
+  if(viewName !== 'entry') document.getElementById('mobileSaveBar').classList.remove('show');
   window.scrollTo({top:0, behavior:'smooth'});
 }
 document.querySelectorAll('.tab-btn, .bn-btn').forEach(btn=>{
@@ -1309,10 +1421,12 @@ document.querySelectorAll('.tab-btn, .bn-btn').forEach(btn=>{
 function showEntryHome(){
   document.getElementById('entryHome').style.display = '';
   document.getElementById('entryForm').style.display = 'none';
+  document.getElementById('mobileSaveBar').classList.remove('show');
 }
 function showEntryForm(){
   document.getElementById('entryHome').style.display = 'none';
   document.getElementById('entryForm').style.display = '';
+  document.getElementById('mobileSaveBar').classList.add('show');
 }
 function startEntry(type){
   resetForm();
@@ -1332,6 +1446,30 @@ document.getElementById('btnBackHome').addEventListener('click', ()=>{
   showEntryHome();
   window.scrollTo({top:0, behavior:'smooth'});
 });
+
+/* ============ SECTION JUMP NAV (01-05 quick scroll) ============ */
+const jumpLinks = Array.from(document.querySelectorAll('#sectionJumpNav a'));
+jumpLinks.forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    const target = document.getElementById(a.dataset.jump);
+    if(!target) return;
+    const navH = document.getElementById('sectionJumpNav').offsetHeight + 12;
+    const top = target.getBoundingClientRect().top + window.scrollY - navH;
+    window.scrollTo({top, behavior:'smooth'});
+  });
+});
+function updateActiveJumpLink(){
+  if(document.getElementById('entryForm').style.display === 'none') return;
+  const navH = document.getElementById('sectionJumpNav').offsetHeight + 24;
+  let current = null;
+  jumpLinks.forEach(a=>{
+    const el = document.getElementById(a.dataset.jump);
+    if(el && el.offsetParent !== null && el.getBoundingClientRect().top - navH <= 0) current = a;
+  });
+  jumpLinks.forEach(a=> a.classList.toggle('active', a === current));
+}
+window.addEventListener('scroll', updateActiveJumpLink, {passive:true});
 
 /* ============ RIPPLE + PRESS FEEDBACK ============ */
 document.addEventListener('click', e=>{
@@ -1407,6 +1545,13 @@ document.querySelectorAll('#serviceTypeRow .radio-chip').forEach(chip=>{
     document.querySelectorAll('.package-only').forEach(el=>{
       el.style.display = state.serviceType === 'package' ? '' : 'none';
     });
+    // restart the fade-in animation on the panel that just became visible
+    const activePanel = document.getElementById(state.serviceType + 'Panel');
+    if(activePanel){
+      activePanel.classList.remove('case-panel');
+      void activePanel.offsetWidth;
+      activePanel.classList.add('case-panel');
+    }
     updateBillingEntity();
     updateSummary();
   });
@@ -1816,8 +1961,12 @@ document.getElementById('f_deposit').addEventListener('input', e=> e.target.data
 document.getElementById('btnReset').addEventListener('click', resetForm);
 document.getElementById('btnSave').addEventListener('click', saveRecord);
 document.getElementById('btnCancelEdit').addEventListener('click', resetForm);
+document.getElementById('btnMobileReset').addEventListener('click', resetForm);
+document.getElementById('btnMobileSave').addEventListener('click', saveRecord);
 
 function resetForm(){
+  clearFieldErrors();
+  if(!draftRestoreInProgress) clearDraft();
   document.querySelectorAll('#view-entry input[type=text], #view-entry input[type=number], #view-entry input[type=tel], #view-entry input[type=date], #view-entry textarea').forEach(el=>el.value='');
   document.getElementById('f_deposit').value = 5000;
   delete document.getElementById('f_deposit').dataset.userEdited;
@@ -1863,8 +2012,233 @@ function resetForm(){
 
   document.getElementById('editBanner').style.display = 'none';
   document.getElementById('btnSave').innerHTML = saveButtonHTML();
+  document.getElementById('btnMobileSave').textContent = editingId ? 'บันทึกการแก้ไข' : 'บันทึก';
+  applySmartDefaults();
   updateSummary(); suggestFee();
 }
+
+/* ============ SMART DEFAULT (จำค่าที่กรอกบ่อย/ล่าสุด ให้เติมอัตโนมัติในฟอร์มถัดไป) ============ */
+const SMART_DEFAULT_KEY = 'cmcc_smartDefaults_v1';
+
+function getSmartDefaults(){
+  try{ return JSON.parse(localStorage.getItem(SMART_DEFAULT_KEY)) || {}; }
+  catch(e){ return {}; }
+}
+function setSmartDefaults(patch){
+  try{
+    const cur = getSmartDefaults();
+    localStorage.setItem(SMART_DEFAULT_KEY, JSON.stringify(Object.assign(cur, patch)));
+  }catch(e){}
+}
+function clearSmartDefaults(){
+  try{ localStorage.removeItem(SMART_DEFAULT_KEY); }catch(e){}
+  document.getElementById('smartDefaultHint').style.display = 'none';
+  document.getElementById('btnClearSmartDefault').style.display = 'none';
+  showToast('ล้างค่าที่จำไว้เรียบร้อยแล้ว');
+}
+
+function todayISO(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+// เก็บค่าล่าสุดหลังบันทึกสำเร็จ เพื่อนำมาเติมอัตโนมัติในเคสถัดไป
+function rememberSmartDefaults(){
+  const patch = {
+    recordedBy: document.getElementById('f_recordedBy').value.trim(),
+    caregiver: document.getElementById('f_caregiver').value.trim(),
+    status: document.getElementById('f_status').value,
+    depositStatus: document.getElementById('f_depositStatus').value
+  };
+  if(state.serviceType === 'package' && state.format) patch.format = state.format;
+  if(state.serviceType === 'procedure' && state.procZone) patch.procZone = state.procZone;
+  Object.keys(patch).forEach(k=>{ if(!patch[k]) delete patch[k]; });
+  setSmartDefaults(patch);
+}
+
+// เติมค่า default อัตโนมัติตอนเปิดฟอร์มใหม่ (ไม่ทับข้อมูลกรณีกำลังแก้ไขเคสเดิม เพราะ editRecord() จะเซ็ตค่าจริงทับทีหลัง)
+function applySmartDefaults(){
+  const d = getSmartDefaults();
+  let appliedAny = false;
+
+  if(d.recordedBy){ document.getElementById('f_recordedBy').value = d.recordedBy; appliedAny = true; }
+  if(d.caregiver){ document.getElementById('f_caregiver').value = d.caregiver; appliedAny = true; }
+
+  const statusSel = document.getElementById('f_status');
+  if(d.status && Array.from(statusSel.options).some(o=>o.value===d.status)){ statusSel.value = d.status; appliedAny = true; }
+
+  const depositSel = document.getElementById('f_depositStatus');
+  if(d.depositStatus && Array.from(depositSel.options).some(o=>o.value===d.depositStatus)){ depositSel.value = d.depositStatus; appliedAny = true; }
+
+  if(d.format){
+    const chip = document.querySelector(`#formatRow .radio-chip[data-val="${d.format}"]`);
+    if(chip){ chip.click(); appliedAny = true; }
+  }
+  if(d.procZone){
+    const chip = document.querySelector(`#procZoneRow .radio-chip[data-val="${d.procZone}"]`);
+    if(chip){ chip.click(); appliedAny = true; }
+  }
+
+  // วันเริ่มบริการ: เติมวันที่วันนี้ให้อัตโนมัติเสมอเมื่อยังว่าง
+  const startInput = document.getElementById('f_startDate');
+  if(!startInput.value) startInput.value = todayISO();
+
+  document.getElementById('smartDefaultHint').style.display = (d.recordedBy || d.caregiver) ? '' : 'none';
+  document.getElementById('btnClearSmartDefault').style.display = appliedAny ? '' : 'none';
+}
+document.getElementById('btnClearSmartDefault').addEventListener('click', clearSmartDefaults);
+
+/* ============ AUTO-SAVE DRAFT (กันข้อมูลหายกรณีปิดแท็บ/รีเฟรชกลางคัน) ============ */
+const DRAFT_KEY = 'cmcc_draft_v1';
+let draftSaveTimer = null;
+let draftRestoreInProgress = false;
+
+function collectDraftSnapshot(){
+  const fields = {};
+  document.querySelectorAll('#entryForm input[id], #entryForm select[id], #entryForm textarea[id]').forEach(el=>{
+    fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  return {
+    fields,
+    state: {
+      pkg: state.pkg, format: state.format, equipment: Array.from(state.equipment),
+      serviceType: state.serviceType,
+      procZone: state.procZone, procedures: Array.from(state.procedures),
+      addonZone: state.addonZone, addonProcedures: Array.from(state.addonProcedures),
+      courseProgram: state.courseProgram, courseOption: state.courseOption,
+      coursePurchaseType: state.coursePurchaseType, coursePatientType: state.coursePatientType,
+      courseTherapistType: state.courseTherapistType
+    },
+    editingId,
+    savedAt: Date.now()
+  };
+}
+
+function saveDraft(){
+  if(draftRestoreInProgress) return;
+  const clientName = document.getElementById('f_clientName').value.trim();
+  if(!clientName){ clearDraft(); return; }
+  try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraftSnapshot())); }catch(e){}
+}
+function clearDraft(){
+  try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+  const bar = document.querySelector('.draft-restore-bar');
+  if(bar) bar.remove();
+}
+function getDraft(){
+  try{ return JSON.parse(localStorage.getItem(DRAFT_KEY)); }catch(e){ return null; }
+}
+
+document.getElementById('entryForm').addEventListener('input', ()=>{
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(saveDraft, 900);
+});
+
+// นำ state (ประเภทเคส/แพ็กเกจ/โซน/หัตถการ/คอร์ส) ของฉบับร่างกลับมาแสดงผล โดยจำลองการคลิกของผู้ใช้จริง เพื่อให้ UI ที่ผูกกันทั้งหมดอัปเดตถูกต้อง
+function applyDraftState(ds){
+  if(!ds) return;
+  const typeChip = document.querySelector(`#serviceTypeRow .radio-chip[data-val="${ds.serviceType}"]`);
+  if(typeChip) typeChip.click();
+
+  if(ds.serviceType === 'package'){
+    if(ds.pkg){
+      const card = document.querySelector(`.pkg-card[data-key="${ds.pkg}"]`);
+      if(card) card.click();
+    }
+    if(ds.format){
+      const chip = document.querySelector(`#formatRow .radio-chip[data-val="${ds.format}"]`);
+      if(chip) chip.click();
+    }
+    (ds.equipment||[]).forEach(eq=>{
+      document.querySelectorAll('#equipWrap .chip-check').forEach(chip=>{
+        const input = chip.querySelector('input');
+        if(input.value === eq && !input.checked) input.click();
+      });
+    });
+    if(ds.addonZone){
+      const chip = document.querySelector(`#addonZoneRow .radio-chip[data-val="${ds.addonZone}"]`);
+      if(chip) chip.click();
+    }
+    (ds.addonProcedures||[]).forEach(k=> state.addonProcedures.add(k));
+    buildProcChecklist(document.getElementById('addonChecklist'), ()=>state.addonZone, state.addonProcedures, refreshAddonSubtotal);
+    refreshAddonSubtotal();
+  } else if(ds.serviceType === 'procedure'){
+    if(ds.procZone){
+      const chip = document.querySelector(`#procZoneRow .radio-chip[data-val="${ds.procZone}"]`);
+      if(chip) chip.click();
+    }
+    (ds.procedures||[]).forEach(k=> state.procedures.add(k));
+    buildProcChecklist(document.getElementById('procChecklist'), ()=>state.procZone, state.procedures, refreshProcSubtotal);
+    refreshProcSubtotal();
+  } else if(ds.serviceType === 'course'){
+    if(ds.courseProgram){
+      const chip = document.querySelector(`#courseProgramRow .radio-chip[data-val="${ds.courseProgram}"]`);
+      if(chip) chip.click();
+    }
+    if(ds.coursePurchaseType){
+      const chip = document.querySelector(`#coursePurchaseTypeRow .radio-chip[data-val="${ds.coursePurchaseType}"]`);
+      if(chip) chip.click();
+    }
+    if(ds.coursePatientType){
+      const chip = document.querySelector(`#coursePatientTypeRow .radio-chip[data-val="${ds.coursePatientType}"]`);
+      if(chip) chip.click();
+    }
+    if(ds.courseTherapistType){
+      const chip = document.querySelector(`#courseTherapistTypeRow .radio-chip[data-val="${ds.courseTherapistType}"]`);
+      if(chip) chip.click();
+    }
+    if(ds.courseOption){
+      const card = document.querySelector(`#courseOptionGrid .pkg-card[data-key="${ds.courseOption}"]`);
+      if(card) card.click();
+    }
+  }
+  updateBillingEntity();
+  updateSummary(); suggestFee();
+}
+
+function restoreDraft(draft){
+  draftRestoreInProgress = true;
+  showEntryForm();
+  Object.entries(draft.fields||{}).forEach(([id, val])=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(el.type === 'checkbox') el.checked = !!val;
+    else el.value = val;
+  });
+  applyDraftState(draft.state);
+  document.querySelectorAll('.tab-btn, .bn-btn').forEach(b=>b.classList.toggle('active', b.dataset.view === 'entry'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-entry').classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  draftRestoreInProgress = false;
+  showToast('กู้คืนฉบับร่างที่ยังไม่ได้บันทึกแล้ว');
+}
+
+// ตรวจดราฟต์ตอนโหลดหน้า — ถ้ามีให้ถามก่อนกู้คืน
+(function checkDraftOnLoad(){
+  const draft = getDraft();
+  if(!draft || !draft.fields || !draft.fields.f_clientName) return;
+  const name = draft.fields.f_clientName;
+  const t = document.getElementById('toast');
+  const bar = document.createElement('div');
+  bar.className = 'draft-restore-bar';
+  bar.innerHTML = `
+    <span>พบฉบับร่างที่ยังไม่ได้บันทึก: <b>${escapeHtml(name)}</b></span>
+    <span class="draft-restore-actions">
+      <button type="button" id="btnDraftRestore">กู้คืน</button>
+      <button type="button" id="btnDraftDiscard">ทิ้งฉบับร่าง</button>
+    </span>`;
+  document.body.appendChild(bar);
+  document.getElementById('btnDraftRestore').addEventListener('click', ()=>{
+    restoreDraft(draft);
+    bar.remove();
+  });
+  document.getElementById('btnDraftDiscard').addEventListener('click', ()=>{
+    clearDraft();
+    bar.remove();
+  });
+})();
 
 function genRequestId(){
   if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -1878,20 +2252,21 @@ function procListText(zone, set){
 
 async function saveRecord(){
   if(isSaving) return;
+  clearFieldErrors();
   const clientName = document.getElementById('f_clientName').value.trim();
-  if(!clientName){ showToast('กรุณากรอกชื่อผู้รับบริการ', true); return; }
+  if(!clientName){ return markInvalid('f_clientName', 'กรุณากรอกชื่อผู้รับบริการ'); }
 
   if(state.serviceType === 'package'){
-    if(!state.format){ showToast('กรุณาเลือกรูปแบบบริการ', true); return; }
-    if(!document.getElementById('f_monthlyFee').value){ showToast('กรุณาระบุค่าบริการต่อเดือน', true); return; }
+    if(!state.format){ return markInvalid('formatRow', 'กรุณาเลือกรูปแบบบริการ'); }
+    if(!document.getElementById('f_monthlyFee').value){ return markInvalid('f_monthlyFee', 'กรุณาระบุค่าบริการต่อเดือน'); }
   } else if(state.serviceType === 'procedure'){
-    if(!state.procZone){ showToast('กรุณาเลือกโซนบริการ', true); return; }
-    if(state.procedures.size === 0){ showToast('กรุณาเลือกหัตถการอย่างน้อย 1 รายการ', true); return; }
+    if(!state.procZone){ return markInvalid('procZoneRow', 'กรุณาเลือกโซนบริการ'); }
+    if(state.procedures.size === 0){ return markInvalid('procChecklist', 'กรุณาเลือกหัตถการอย่างน้อย 1 รายการ'); }
   } else if(state.serviceType === 'course'){
-    if(!state.courseProgram){ showToast('กรุณาเลือกประเภทโปรแกรม', true); return; }
+    if(!state.courseProgram){ return markInvalid('courseProgramRow', 'กรุณาเลือกประเภทโปรแกรม'); }
     const prog = COURSE_PROGRAMS[state.courseProgram];
     const isFlatSingle = state.coursePurchaseType === 'single' && prog.singleSessionRate;
-    if(!isFlatSingle && !state.courseOption){ showToast('กรุณาเลือกแพ็กเกจคอร์ส', true); return; }
+    if(!isFlatSingle && !state.courseOption){ return markInvalid('courseOptionField', 'กรุณาเลือกแพ็กเกจคอร์ส'); }
   }
 
   const isPackage = state.serviceType === 'package';
@@ -1988,6 +2363,7 @@ async function saveRecord(){
     let refId = '';
     try{ const data = await res.json(); refId = data.id || ''; } catch(e){}
 
+    rememberSmartDefaults();
     if(isEditing){
       showToast('แก้ไขข้อมูลเรียบร้อยแล้ว');
       resetForm();
@@ -2119,47 +2495,57 @@ function openInvoice(payload, refId){
     ].filter(Boolean).join('\n');
 
     document.getElementById('invoiceBody').innerHTML = `
-      <div class="inv-head">
-        <div class="inv-brand">
-          <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
-          <div>
-            <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care')}</div>
-            ${clinicFullNameLine(payload)}
-            <div class="inv-brand-sub">ใบสรุปคอร์ส/โปรแกรมบริการ</div>
-          </div>
-        </div>
-        <div class="inv-meta">
-          เลขที่เอกสาร <b>${docNo}</b><br>
-          วันที่ออกเอกสาร <b>${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}</b>
-        </div>
-      </div>
-      <div class="inv-cols">
-        <div>
-          <div class="inv-block-lbl">ผู้รับบริการ</div>
-          <div class="inv-line"><b>${escapeHtml(payload.clientName)}</b></div>
-          <div class="inv-line"><span>อายุ ${escapeHtml(payload.age||'—')} ปี · ${escapeHtml(payload.gender||'—')}</span></div>
-        </div>
-        <div>
-          <div class="inv-block-lbl">เรียนแจ้งถึงผู้ติดต่อ</div>
-          <div class="inv-line"><b>${escapeHtml(payload.contactName || '—')}</b> <span>${payload.contactRelation ? '('+escapeHtml(payload.contactRelation)+')' : ''}</span></div>
-          <div class="inv-line"><span>โทร ${escapeHtml(payload.contactPhone || '—')}</span></div>
-        </div>
-      </div>
-      <div class="inv-service-box">
-        <div class="inv-service-row"><span>โปรแกรม</span><b>${escapeHtml(payload.courseProgramLabel || '—')}</b></div>
-        <div class="inv-service-row"><span>แพ็กเกจคอร์ส</span><b>${escapeHtml(payload.courseOptionLabel || '—')}</b></div>
-        ${isSingleVisit ? '' : `<div class="inv-service-row"><span>จำนวนครั้ง</span><b>ใช้ไป ${used}/${total} · คงเหลือ ${remaining}</b></div>`}
-        <div class="inv-service-row"><span>เจ้าหน้าที่ผู้ดูแล</span><b>${escapeHtml(payload.caregiver || 'แจ้งภายหลัง')}</b></div>
-      </div>
-      <table class="inv-charges">
-        <thead><tr><th>รายการ</th><th style="text-align:right;">จำนวนเงิน (บาท)</th></tr></thead>
-        <tbody>
-          <tr><td>${escapeHtml(payload.courseOptionLabel||'คอร์สบริการ')}${isSingleVisit ? '' : ' ('+total+' ครั้ง)'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
-          <tr class="inv-total-row"><td>${isSingleVisit ? 'ยอดชำระ' : 'ยอดชำระทั้งคอร์ส'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
+      <table class="inv-wrapper-table">
+        <thead class="inv-thead">
+          <tr><td>
+            <div class="inv-head" style="margin-bottom: 20px;">
+              <div class="inv-brand">
+                <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
+                <div>
+                  <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care')}</div>
+                  ${clinicFullNameLine(payload)}
+                  <div class="inv-brand-sub">ใบสรุปคอร์ส/โปรแกรมบริการ</div>
+                </div>
+              </div>
+              <div class="inv-meta">
+                เลขที่เอกสาร <b>${docNo}</b><br>
+                วันที่ออกเอกสาร <b>${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}</b>
+              </div>
+            </div>
+          </td></tr>
+        </thead>
+        <tbody class="inv-tbody">
+          <tr><td>
+            <div class="inv-cols">
+              <div>
+                <div class="inv-block-lbl">ผู้รับบริการ</div>
+                <div class="inv-line"><b>${escapeHtml(payload.clientName)}</b></div>
+                <div class="inv-line"><span>อายุ ${escapeHtml(payload.age||'—')} ปี · ${escapeHtml(payload.gender||'—')}</span></div>
+              </div>
+              <div>
+                <div class="inv-block-lbl">เรียนแจ้งถึงผู้ติดต่อ</div>
+                <div class="inv-line"><b>${escapeHtml(payload.contactName || '—')}</b> <span>${payload.contactRelation ? '('+escapeHtml(payload.contactRelation)+')' : ''}</span></div>
+                <div class="inv-line"><span>โทร ${escapeHtml(payload.contactPhone || '—')}</span></div>
+              </div>
+            </div>
+            <div class="inv-service-box">
+              <div class="inv-service-row"><span>โปรแกรม</span><b>${escapeHtml(payload.courseProgramLabel || '—')}</b></div>
+              <div class="inv-service-row"><span>แพ็กเกจคอร์ส</span><b>${escapeHtml(payload.courseOptionLabel || '—')}</b></div>
+              ${isSingleVisit ? '' : `<div class="inv-service-row"><span>จำนวนครั้ง</span><b>ใช้ไป ${used}/${total} · คงเหลือ ${remaining}</b></div>`}
+              <div class="inv-service-row"><span>เจ้าหน้าที่ผู้ดูแล</span><b>${escapeHtml(payload.caregiver || 'แจ้งภายหลัง')}</b></div>
+            </div>
+            <table class="inv-charges">
+              <thead><tr><th>รายการ</th><th style="text-align:right;">จำนวนเงิน (บาท)</th></tr></thead>
+              <tbody>
+                <tr><td>${escapeHtml(payload.courseOptionLabel||'คอร์สบริการ')}${isSingleVisit ? '' : ' ('+total+' ครั้ง)'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
+                <tr class="inv-total-row"><td>${isSingleVisit ? 'ยอดชำระ' : 'ยอดชำระทั้งคอร์ส'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
+              </tbody>
+            </table>
+            ${signatureBlockHtml(payload)}
+            <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care')} ดูแลคนที่คุณรัก</div>
+          </td></tr>
         </tbody>
       </table>
-      ${signatureBlockHtml(payload)}
-      <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care')} ดูแลคนที่คุณรัก</div>
     `;
     invoiceModal.classList.add('show');
     return;
@@ -2213,20 +2599,27 @@ function openInvoice(payload, refId){
   ].filter(Boolean).join('\n');
 
   document.getElementById('invoiceBody').innerHTML = `
-    <div class="inv-head">
-      <div class="inv-brand">
-        <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
-        <div>
-          <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care')}</div>
-          ${clinicFullNameLine(payload)}
-          <div class="inv-brand-sub">ใบสรุปแผนการดูแลและค่าบริการ</div>
-        </div>
-      </div>
-      <div class="inv-meta">
-        เลขที่เอกสาร <b>${docNo}</b><br>
-        วันที่ออกเอกสาร <b>${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}</b>
-      </div>
-    </div>
+    <table class="inv-wrapper-table">
+      <thead class="inv-thead">
+        <tr><td>
+          <div class="inv-head">
+            <div class="inv-brand">
+              <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
+              <div>
+                <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care')}</div>
+                ${clinicFullNameLine(payload)}
+                <div class="inv-brand-sub">ใบสรุปแผนการดูแลและค่าบริการ</div>
+              </div>
+            </div>
+            <div class="inv-meta">
+              เลขที่เอกสาร <b>${docNo}</b><br>
+              วันที่ออกเอกสาร <b>${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}</b>
+            </div>
+          </div>
+        </td></tr>
+      </thead>
+      <tbody class="inv-tbody">
+        <tr><td>
 
     <div class="inv-cols">
       <div>
@@ -2291,6 +2684,10 @@ function openInvoice(payload, refId){
 
     ${signatureBlockHtml(payload)}
     <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care')} ดูแลคนที่คุณรัก</div>
+
+        </td></tr>
+      </tbody>
+    </table>
   `;
   invoiceModal.classList.add('show');
 }
@@ -2339,6 +2736,8 @@ document.getElementById('recordsBody').addEventListener('click', e=>{
   if(editBtn){ editRecord(editBtn.dataset.editId); return; }
   const printBtn = e.target.closest('.icon-btn[data-print-id]');
   if(printBtn){ reprintInvoice(printBtn.dataset.printId); return; }
+  const dupBtn = e.target.closest('.icon-btn[data-duplicate-id]');
+  if(dupBtn){ duplicateRecord(dupBtn.dataset.duplicateId); return; }
 });
 
 function reprintInvoice(id){
@@ -2356,14 +2755,14 @@ function reprintInvoice(id){
     packageName: r['แพ็กเกจ'] || '',
     serviceFormat: r['รูปแบบบริการ'] || '',
     monthlyFee: r['ค่าบริการต่อเดือน (บาท)'] || r['ค่าบริการต่อเดือน'] || '',
-    dailyRate: r['อัตรารายวัน (บาท)'] || r['อัตรารายวัน'] || '',
-    assessmentFee: r['ค่าประเมินหน้างาน (บาท)'] || r['ค่าประเมินหน้างาน'] || '',
+    dailyRate: r['อัตรารายวัน (บาท)'] || r['อัตรารายวัน'] || r['dailyRate'] || '',
+    assessmentFee: r['ค่าประเมินหน้างาน (บาท)'] || r['ค่าประเมินหน้างาน'] || r['assessmentFee'] || '',
     holidayChargeAmount: r['ค่าบริการวันหยุด (บาท)'] || r['ค่าบริการวันหยุดนักขัตฤกษ์'] || r['holidayChargeAmount'] || '',
     deposit: r['เงินประกันสัญญา (บาท)'] || r['เงินประกันสัญญา'] || '',
     depositStatus: r['สถานะเงินประกัน'] || '',
     startDate: r['วันเริ่มบริการ'] || '',
     caregiver: r['เจ้าหน้าที่ผู้ดูแล'] || '',
-    billingEntity: r['ออกเอกสารในนาม'] || 'CMCC Home Care',
+    billingEntity: r['ออกเอกสารในนาม'] || ((r['ประเภทเคส'] || '') === 'แพ็กเกจรายเดือน' ? 'CMCC Home Care' : 'คลินิกหมอต้น'),
     serviceTypeLabel: r['ประเภทเคส'] || '',
     zoneLabel: r['โซนบริการ'] || '',
     procedureListText: r['รายการหัตถการ'] || '',
@@ -2377,13 +2776,7 @@ function reprintInvoice(id){
   openInvoice(payload, r['id']);
 }
 
-function editRecord(id){
-  const r = allRecords.find(rec => String(rec['id']) === String(id));
-  if(!r){ showToast('ไม่พบข้อมูลที่ต้องการแก้ไข', true); return; }
-
-  resetForm();
-  editingId = id;
-
+function fillFormFromRecord(r){
   document.getElementById('f_clientName').value = r['ชื่อผู้รับบริการ'] || '';
   document.getElementById('f_age').value = r['อายุ'] || '';
   document.getElementById('f_gender').value = r['เพศ'] || '';
@@ -2410,7 +2803,7 @@ function editRecord(id){
     document.getElementById('holidayChargeWrap').classList.add('checked');
     document.getElementById('holidayAmountField').style.display = '';
     document.getElementById('f_holidayAmount').value = holidayAmt;
-    } // <---- เติมปีกกาปิดตรงนี้ครับ!
+  }
   document.getElementById('f_remarks').value = r['หมายเหตุ'] || '';
   document.getElementById('f_recordedBy').value = r['ผู้บันทึก'] || '';
 
@@ -2525,16 +2918,48 @@ function editRecord(id){
 
   updateBillingEntity();
   updateSummary(); suggestFee();
+}
 
-  document.getElementById('editBannerText').textContent = `กำลังแก้ไขข้อมูลของ ${r['ชื่อผู้รับบริการ'] || 'รายการนี้'}`;
-  document.getElementById('editBanner').style.display = 'flex';
-  document.getElementById('btnSave').innerHTML = saveButtonHTML();
-
+function switchToEntryFormView(){
   document.querySelectorAll('.tab-btn, .bn-btn').forEach(b=>b.classList.toggle('active', b.dataset.view === 'entry'));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-entry').classList.add('active');
   showEntryForm();
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function editRecord(id){
+  const r = allRecords.find(rec => String(rec['id']) === String(id));
+  if(!r){ showToast('ไม่พบข้อมูลที่ต้องการแก้ไข', true); return; }
+
+  resetForm();
+  editingId = id;
+  fillFormFromRecord(r);
+
+  document.getElementById('editBannerText').textContent = `กำลังแก้ไขข้อมูลของ ${r['ชื่อผู้รับบริการ'] || 'รายการนี้'}`;
+  document.getElementById('btnCancelEdit').textContent = 'ยกเลิกการแก้ไข';
+  document.getElementById('editBanner').style.display = 'flex';
+  document.getElementById('btnSave').innerHTML = saveButtonHTML();
+  document.getElementById('btnMobileSave').textContent = editingId ? 'บันทึกการแก้ไข' : 'บันทึก';
+  switchToEntryFormView();
+}
+
+function duplicateRecord(id){
+  const r = allRecords.find(rec => String(rec['id']) === String(id));
+  if(!r){ showToast('ไม่พบข้อมูลที่ต้องการคัดลอก', true); return; }
+
+  resetForm();
+  editingId = null;
+  fillFormFromRecord(r);
+  document.getElementById('f_startDate').value = todayISO();
+
+  document.getElementById('editBannerText').textContent = `กำลังสร้างเคสใหม่โดยคัดลอกจาก ${r['ชื่อผู้รับบริการ'] || 'รายการเดิม'} — ตรวจสอบข้อมูลก่อนบันทึก`;
+  document.getElementById('btnCancelEdit').textContent = 'ยกเลิก';
+  document.getElementById('editBanner').style.display = 'flex';
+  document.getElementById('btnSave').innerHTML = saveButtonHTML();
+  document.getElementById('btnMobileSave').textContent = 'บันทึก';
+  switchToEntryFormView();
+  showToast('คัดลอกข้อมูลจากเคสเดิมแล้ว ตรวจสอบและบันทึกเป็นเคสใหม่');
 }
 
 async function loadRecords(){
@@ -2571,6 +2996,24 @@ function showTableSkeleton(){
     </tr>`).join('');
 }
 
+let sortState = { key:null, dir:'asc' };
+let contractEndSortActive = false;
+
+function getSortValue(r, key){
+  if(key === 'วันเริ่มบริการ' || key === 'วันครบกำหนดสัญญา'){
+    const v = r[key];
+    if(v) return new Date(v).getTime();
+    return key === 'วันครบกำหนดสัญญา' ? Infinity : -Infinity;
+  }
+  if(key === 'ค่าบริการต่อเดือน (บาท)'){
+    const isProc = r['ประเภทเคส'] === 'บริการหัตถการครั้งเดียว';
+    const isCourse = r['ประเภทเคส'] === 'คอร์ส/โปรแกรมบริการ';
+    const fee = isProc ? r['ค่าบริการหัตถการ (บาท)'] : (isCourse ? r['ราคาคอร์สรวม (บาท)'] : r['ค่าบริการต่อเดือน (บาท)']);
+    return Number(fee) || 0;
+  }
+  return (r[key] || '').toString().toLowerCase();
+}
+
 function getFilteredRecords(){
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   let rows = allRecords.filter(r=>{
@@ -2578,9 +3021,48 @@ function getFilteredRecords(){
     const matchF = activeFilter === 'ทั้งหมด' || r['สถานะ'] === activeFilter;
     return matchQ && matchF;
   });
-  rows.sort((a,b)=> new Date(b['บันทึกเมื่อ']) - new Date(a['บันทึกเมื่อ']));
+  if(contractEndSortActive){
+    rows.sort((a,b)=> getSortValue(a,'วันครบกำหนดสัญญา') - getSortValue(b,'วันครบกำหนดสัญญา'));
+  } else if(sortState.key){
+    const dir = sortState.dir === 'asc' ? 1 : -1;
+    rows.sort((a,b)=>{
+      const va = getSortValue(a, sortState.key), vb = getSortValue(b, sortState.key);
+      if(va < vb) return -1 * dir;
+      if(va > vb) return 1 * dir;
+      return 0;
+    });
+  } else {
+    rows.sort((a,b)=> new Date(b['บันทึกเมื่อ']) - new Date(a['บันทึกเมื่อ']));
+  }
   return rows;
 }
+
+function updateSortHeaderUI(){
+  document.querySelectorAll('thead th.sortable').forEach(th=>{
+    th.classList.remove('sort-asc','sort-desc');
+    if(!contractEndSortActive && th.dataset.sort === sortState.key){
+      th.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+  });
+}
+document.querySelectorAll('thead th.sortable').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.dataset.sort;
+    contractEndSortActive = false;
+    document.getElementById('btnSortContractEnd').classList.remove('active');
+    if(sortState.key === key) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+    else { sortState.key = key; sortState.dir = 'asc'; }
+    updateSortHeaderUI();
+    renderRecords();
+  });
+});
+document.getElementById('btnSortContractEnd').addEventListener('click', ()=>{
+  contractEndSortActive = !contractEndSortActive;
+  sortState = {key:null, dir:'asc'};
+  document.getElementById('btnSortContractEnd').classList.toggle('active', contractEndSortActive);
+  updateSortHeaderUI();
+  renderRecords();
+});
 
 function renderRecords(){
   let rows = getFilteredRecords();
@@ -2636,6 +3118,9 @@ function renderRecords(){
           </button>
           <button class="icon-btn" data-edit-id="${escapeHtml(r['id'])}" title="แก้ไขข้อมูล">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="icon-btn" data-duplicate-id="${escapeHtml(r['id'])}" title="คัดลอกเป็นเคสใหม่ (ลูกค้าเดิมกลับมาใช้บริการซ้ำ)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M4 16V6a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
           </button>
         </div>
       </td>
@@ -2782,6 +3267,20 @@ function escapeHtml(str){
   const div = document.createElement('div');
   div.textContent = str == null ? '' : String(str);
   return div.innerHTML;
+}
+
+/* ============ FIELD-LEVEL VALIDATION HIGHLIGHT ============ */
+function clearFieldErrors(){
+  document.querySelectorAll('.field-invalid').forEach(el=> el.classList.remove('field-invalid'));
+}
+function markInvalid(id, message){
+  const el = document.getElementById(id);
+  if(el){
+    el.classList.add('field-invalid');
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    if(typeof el.focus === 'function') setTimeout(()=> el.focus(), 250);
+  }
+  showToast(message, true);
 }
 
 /* ============ AI CHAT ASSISTANT (local knowledge search — no external API) ============ */
@@ -2937,7 +3436,24 @@ document.getElementById('themeToggle').addEventListener('click', ()=>{
   const isLight = document.body.classList.toggle('light-mode');
   document.getElementById('themeIconMoon').style.display = isLight ? 'none' : '';
   document.getElementById('themeIconSun').style.display = isLight ? '' : 'none';
+  try{ localStorage.setItem('cmcc_theme', isLight ? 'light' : 'dark'); }catch(e){}
 });
+
+/* ตั้งค่าธีมเริ่มต้น: ใช้ค่าที่ผู้ใช้เคยเลือกไว้ก่อน ถ้าไม่มีให้ตามเวลา (กลางวัน = สว่าง, กลางคืน = มืด) */
+(function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem('cmcc_theme'); }catch(e){}
+  let useLight;
+  if(saved === 'light' || saved === 'dark'){
+    useLight = saved === 'light';
+  } else {
+    const hour = new Date().getHours();
+    useLight = hour >= 6 && hour < 18;
+  }
+  document.body.classList.toggle('light-mode', useLight);
+  document.getElementById('themeIconMoon').style.display = useLight ? 'none' : '';
+  document.getElementById('themeIconSun').style.display = useLight ? '' : 'none';
+})();
 
 /* init */
 priceKB = buildPriceKB();
