@@ -175,11 +175,16 @@
   .mobile-save-bar{ display:none; }
   @media (max-width:640px){
     .mobile-save-bar.show{
-      display:flex; gap:10px; position:fixed; left:12px; right:12px; bottom:82px; z-index:55;
+      display:flex; flex-direction:column; gap:8px; position:fixed; left:12px; right:12px; bottom:82px; z-index:55;
       background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow-pop);
       padding:10px 12px;
     }
+    .mobile-save-bar .save-bar-buttons{ display:flex; gap:10px; }
     .mobile-save-bar .btn{ flex:1; justify-content:center; padding:11px 10px; font-size:13px; }
+    .mobile-save-total{
+      font-family:'IBM Plex Mono'; font-size:13px; font-weight:700; color:var(--teal-700);
+      text-align:center; padding:2px 0;
+    }
   }
 
   /* ---------- home landing: hero + quick-start grid ---------- */
@@ -223,13 +228,21 @@
   .quick-card.qc-d{background:var(--surface); border:none; color:var(--ink);}
   .quick-card.qc-d .qc-icon{background:var(--paper-dim);}
 
-  .back-home-btn{
-    display:inline-flex; align-items:center; gap:6px; background:transparent; border:none;
-    color:var(--ink-soft); font-size:13px; font-weight:600; cursor:pointer; padding:8px 4px; margin-bottom:10px;
-    transition:color .15s, transform .12s;
+  .jump-nav-home{
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    width:34px; height:34px; border-radius:50%; background:var(--surface); border:1px solid var(--line);
+    color:var(--ink-soft); cursor:pointer; box-shadow:var(--shadow-card); transition:color .15s, border-color .15s;
   }
-  .back-home-btn:hover{color:var(--teal-700);}
-  .back-home-btn:active{transform:translateX(-2px);}
+  .jump-nav-home:hover{color:var(--teal-700); border-color:var(--teal-600);}
+  .jump-nav-home:active{transform:translateX(-2px);}
+
+  /* first-use discoverability badge for newer features */
+  .new-badge{
+    position:absolute; top:-8px; right:-8px; background:var(--rose); color:#fff; font-size:9px; font-weight:700;
+    padding:2px 6px; border-radius:999px; line-height:1.4; box-shadow:0 2px 6px rgba(0,0,0,.25);
+    animation:badgePulse 1.6s ease-in-out infinite; pointer-events:none;
+  }
+  @keyframes badgePulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.12);} }
 
   /* ---------- entry layout ---------- */
   .entry-grid{display:grid; grid-template-columns:1.5fr 1fr; gap:24px; align-items:start;}
@@ -240,8 +253,13 @@
     border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:13.5px; font-weight:600;
   }
 
+  .accordion-head{cursor:pointer; user-select:none;}
+  .accordion-chevron{flex-shrink:0; margin-left:auto; color:var(--ink-faint); transition:transform .2s;}
+  .accordion-head.open .accordion-chevron{transform:rotate(180deg);}
+  .accordion-body{margin-top:14px;}
+
   .section-jump-nav{
-    display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
+    display:flex; align-items:center; gap:6px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;
     position:sticky; top:0; z-index:35; background:var(--paper);
     padding:10px 2px 12px; margin-bottom:6px; scrollbar-width:none;
   }
@@ -270,6 +288,7 @@
   .section-head .section-num{background:rgba(255,255,255,.24); color:#fff;}
   .section-head .section-title{color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.3);}
   .section-head .section-hint{color:rgba(255,255,255,.85);}
+  .section-head .accordion-chevron{color:rgba(255,255,255,.85);}
   .section-num{font-family:'IBM Plex Mono'; font-size:12px; color:var(--amber); font-weight:600; background:var(--amber-100); padding:2px 8px; border-radius:5px;}
   .section-title{font-family:'Taviraj'; font-weight:700; font-size:16.5px; color:var(--teal-900); text-shadow:var(--lift-dark);}
   .section-hint{font-size:12.5px; color:var(--ink-faint); margin-left:auto;}
@@ -392,6 +411,25 @@
   }
   .proc-subtotal .amt{font-family:'IBM Plex Mono'; color:var(--teal-900); font-size:15px;}
 
+  /* custom (free-text) procedure rows */
+  .custom-proc-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    border-radius:14px; padding:11px 14px; margin-bottom:8px;
+    background:var(--teal-100); box-shadow:var(--clay-inset), 0 0 0 2px var(--teal-600);
+  }
+  .custom-proc-row .proc-name{font-size:13.5px; font-weight:600; color:var(--ink); flex:1;}
+  .custom-proc-row .proc-price{font-family:'IBM Plex Mono'; font-size:13px; font-weight:600; color:var(--teal-700); white-space:nowrap;}
+  .custom-proc-row .proc-remove{
+    background:none; border:none; cursor:pointer; color:var(--rose); font-size:16px; line-height:1; padding:2px 4px; flex-shrink:0;
+  }
+  .btn-sm{padding:8px 14px; font-size:12.5px; border-radius:12px;}
+  .custom-proc-form{
+    display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; padding:12px; border-radius:14px;
+    background:var(--paper-dim); box-shadow:var(--clay-inset);
+  }
+  .custom-proc-form input{flex:1; min-width:110px;}
+  .custom-proc-form input#customProcName, .custom-proc-form input#customAddonProcName{flex:2; min-width:160px;}
+
   .btn-row{display:flex; gap:10px; justify-content:flex-end; margin-top:6px; align-items:center;}
   .btn{
     border:none; border-radius:18px; padding:11px 22px; font-weight:600; font-size:14px;
@@ -407,6 +445,17 @@
   .btn-ghost:hover{color:var(--ink);}
   .btn-ghost:active{box-shadow:var(--clay-inset);}
   .btn-danger-text{background:transparent; color:var(--rose); padding:6px 8px; font-size:12.5px;}
+  .btn-danger{background:var(--rose); color:#fff;}
+  .btn-danger:active{transform:scale(.97);}
+
+  /* confirm dialog (reuses .modal-backdrop) */
+  .confirm-card{
+    background:var(--surface); border-radius:20px; padding:24px; max-width:380px; width:calc(100% - 32px);
+    box-shadow:var(--shadow-pop); text-align:left;
+  }
+  .confirm-title{font-size:16px; font-weight:700; color:var(--ink); margin-bottom:8px;}
+  .confirm-message{font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin-bottom:20px;}
+  .confirm-actions{display:flex; gap:10px; justify-content:flex-end;}
 
   /* ---------- paper-scope: keeps physical-document cards (care plan clip, invoice) light regardless of app theme ---------- */
   .paper-scope{
@@ -810,15 +859,14 @@
     </div>
 
     <div id="entryForm" style="display:none;">
-      <button class="back-home-btn" id="btnBackHome" type="button">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        กลับหน้าแรก
-      </button>
     <div class="edit-banner" id="editBanner" style="display:none;">
       <span id="editBannerText"></span>
       <button class="btn btn-ghost" id="btnCancelEdit" type="button" style="padding:6px 14px; font-size:12.5px;">ยกเลิกการแก้ไข</button>
     </div>
     <div class="section-jump-nav" id="sectionJumpNav">
+      <button type="button" class="jump-nav-home" id="btnBackHome" title="กลับหน้าแรก">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <a href="#sec-01" data-jump="sec-01">01 ผู้รับบริการ</a>
       <a href="#sec-02" data-jump="sec-02">02 ประเภทเคส</a>
       <a href="#formatEquipSection" data-jump="formatEquipSection" class="package-only">03 รูปแบบ/อุปกรณ์</a>
@@ -934,6 +982,14 @@
             <div class="field">
               <label>รายการหัตถการ (เลือกได้หลายรายการ)<span class="req">*</span></label>
               <div id="procChecklist"></div>
+              <div id="procCustomList"></div>
+              <button type="button" class="btn btn-ghost btn-sm" id="btnAddCustomProc" data-feature="customProc" style="margin-top:8px; position:relative;">+ เพิ่มหัตถการอื่นๆ (กรอกชื่อ/ราคาเอง)<span class="new-badge" data-feature-badge="customProc">ใหม่</span></button>
+              <div class="custom-proc-form" id="customProcForm" style="display:none;">
+                <input type="text" id="customProcName" placeholder="ชื่อหัตถการ">
+                <input type="number" id="customProcPrice" placeholder="ราคา (บาท)" min="0">
+                <button type="button" class="btn btn-primary btn-sm" id="btnConfirmCustomProc">เพิ่ม</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="btnCancelCustomProc">ยกเลิก</button>
+              </div>
             </div>
             <div class="proc-subtotal" id="procSubtotal">เลือกโซนและหัตถการเพื่อดูยอดรวม</div>
           </div>
@@ -1007,20 +1063,31 @@
         </div>
 
         <div class="section-card package-only" id="addonSection">
-          <div class="section-head">
+          <div class="section-head accordion-head" id="addonSectionHead" role="button" tabindex="0">
             <span class="section-num">04</span>
             <span class="section-title">บริการหัตถการเสริม (ไม่บังคับ)</span>
-            <span class="section-hint">เรียกเก็บแยกจากค่าบริการรายเดือน</span>
+            <span class="section-hint" id="addonSectionHint">เรียกเก็บแยกจากค่าบริการรายเดือน</span>
+            <svg class="accordion-chevron" id="addonSectionChevron" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="field" style="margin-bottom:14px;">
-            <label>โซนบริการ</label>
-            <div class="radio-row" id="addonZoneRow"></div>
+          <div class="accordion-body" id="addonSectionBody" style="display:none;">
+            <div class="field" style="margin-bottom:14px;">
+              <label>โซนบริการ</label>
+              <div class="radio-row" id="addonZoneRow"></div>
+            </div>
+            <div class="field">
+              <label>รายการหัตถการเสริม</label>
+              <div id="addonChecklist"></div>
+              <div id="addonCustomList"></div>
+              <button type="button" class="btn btn-ghost btn-sm" id="btnAddCustomAddonProc" data-feature="customProc" style="margin-top:8px; position:relative;">+ เพิ่มหัตถการอื่นๆ (กรอกชื่อ/ราคาเอง)<span class="new-badge" data-feature-badge="customProc">ใหม่</span></button>
+              <div class="custom-proc-form" id="customAddonProcForm" style="display:none;">
+                <input type="text" id="customAddonProcName" placeholder="ชื่อหัตถการ">
+                <input type="number" id="customAddonProcPrice" placeholder="ราคา (บาท)" min="0">
+                <button type="button" class="btn btn-primary btn-sm" id="btnConfirmCustomAddonProc">เพิ่ม</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="btnCancelCustomAddonProc">ยกเลิก</button>
+              </div>
+            </div>
+            <div class="proc-subtotal" id="addonSubtotal">ไม่มีบริการหัตถการเสริม</div>
           </div>
-          <div class="field">
-            <label>รายการหัตถการเสริม</label>
-            <div id="addonChecklist"></div>
-          </div>
-          <div class="proc-subtotal" id="addonSubtotal">ไม่มีบริการหัตถการเสริม</div>
         </div>
 
         <div class="section-card" id="sec-05">
@@ -1141,9 +1208,10 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 15a7 7 0 0 0 12.4 2.5M18.5 9a7 7 0 0 0-12.4-2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         รีเฟรชจาก Sheet
       </button>
-      <button class="btn btn-ghost" id="btnSortContractEnd" type="button">
+      <button class="btn btn-ghost" id="btnSortContractEnd" type="button" data-feature="sortContractEnd" style="position:relative;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg>
         ใกล้ครบสัญญาก่อน
+        <span class="new-badge" data-feature-badge="sortContractEnd">ใหม่</span>
       </button>
     </div>
     <div class="filter-chips" id="filterChips" style="margin-bottom:16px;"></div>
@@ -1237,6 +1305,17 @@
 
 <div id="printArea"></div>
 
+<div class="modal-backdrop" id="confirmModal">
+  <div class="confirm-card">
+    <div class="confirm-title" id="confirmTitle">ยืนยันการทำรายการ</div>
+    <div class="confirm-message" id="confirmMessage"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="btnConfirmCancel" type="button">ยกเลิก</button>
+      <button class="btn btn-danger" id="btnConfirmOk" type="button">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ AI CHAT ASSISTANT ============ -->
 <button class="chat-fab no-print" id="chatFab" title="ถามผู้ช่วย">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H8l-4 4V4Z" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 9h8M8 12.5h5" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/></svg>
@@ -1268,8 +1347,11 @@
 </div>
 
 <div class="mobile-save-bar no-print" id="mobileSaveBar">
-  <button class="btn btn-ghost" id="btnMobileReset" type="button">ล้างฟอร์ม</button>
-  <button class="btn btn-primary" id="btnMobileSave" type="button">บันทึก</button>
+  <div class="mobile-save-total" id="mobileSaveTotal">ยอดรวม ฿0</div>
+  <div class="save-bar-buttons">
+    <button class="btn btn-ghost" id="btnMobileReset" type="button">ล้างฟอร์ม</button>
+    <button class="btn btn-primary" id="btnMobileSave" type="button">บันทึก</button>
+  </div>
 </div>
 
 <nav class="bottom-nav no-print" id="bottomNav">
@@ -1353,7 +1435,11 @@ const ZONES = {
 const PROCEDURES = {
   ng: { name: 'เปลี่ยนสายให้อาหาร (NG Tube)', price: {A:700, B:1200, C:1500} },
   foley: { name: 'เปลี่ยนสายสวนปัสสาวะ (Foley Catheter)', price: {A:1000, B:1500, C:1800} },
-  dressing: { name: 'ทำแผล (Dressing Set)', price: {A:700, B:1200, C:1500} }
+  dressing: { name: 'ทำแผล (Dressing Set)', price: {A:700, B:1200, C:1500} },
+  ivinfusion: { name: 'เปิดเส้นและให้น้ำเกลือ (IV Infusion)', price: {A:1000, B:1500, C:1800} },
+  suture_removal: { name: 'ตัดไหม', price: {A:700, B:1000, C:1500} },
+  blood_draw: { name: 'เจาะเลือด', price: {A:700, B:1000, C:1500} },
+  suction: { name: 'ดูดเสมหะ', price: {A:700, B:1000, C:1500} }
 };
 
 /* ============ COURSE / PROGRAM PACKAGES (buy N sessions, use over time) ============ */
@@ -1400,8 +1486,8 @@ function courseOptionPrice(programKey, optionKey, patientType){
 let state = {
   pkg: null, format: null, equipment: new Set(),
   serviceType: 'package',
-  procZone: null, procedures: new Set(),
-  addonZone: null, addonProcedures: new Set(),
+  procZone: null, procedures: new Set(), customProcedures: [],
+  addonZone: null, addonProcedures: new Set(), customAddonProcedures: [],
   courseProgram: null, courseOption: null, coursePurchaseType: 'bundle', coursePatientType: 'OPD', courseTherapistType: 'pt',
   billingEntity: 'CMCC Home Care'
 };
@@ -1632,10 +1718,10 @@ function buildProcChecklist(container, zoneGetter, selectedSet, onToggle){
   });
 }
 
-function procSetTotal(zone, set){
-  if(!zone) return 0;
+function procSetTotal(zone, set, customArr){
   let total = 0;
-  set.forEach(key=>{ total += PROCEDURES[key].price[zone] || 0; });
+  if(zone && set) set.forEach(key=>{ total += PROCEDURES[key].price[zone] || 0; });
+  if(customArr) customArr.forEach(item=> total += Number(item.price) || 0);
   return total;
 }
 
@@ -1650,14 +1736,29 @@ buildZoneRow(procZoneRow, code=>{
 buildProcChecklist(document.getElementById('procChecklist'), ()=>state.procZone, state.procedures, refreshProcSubtotal);
 
 function refreshProcSubtotal(){
-  const total = procSetTotal(state.procZone, state.procedures);
+  const total = procSetTotal(state.procZone, state.procedures, state.customProcedures);
   const el = document.getElementById('procSubtotal');
-  el.innerHTML = state.procedures.size ? `<span>ยอดรวมหัตถการ</span><span class="amt">฿${total.toLocaleString()}</span>` : 'เลือกโซนและหัตถการเพื่อดูยอดรวม';
+  const hasAny = state.procedures.size || state.customProcedures.length;
+  el.innerHTML = hasAny ? `<span>ยอดรวมหัตถการ</span><span class="amt">฿${total.toLocaleString()}</span>` : 'เลือกโซนและหัตถการเพื่อดูยอดรวม';
   el.style.display = 'flex';
   updateSummary();
 }
 
 // Add-on (procedures billed on top of a monthly package)
+/* ============ ADDON SECTION ACCORDION (collapsed by default — ไม่บังคับใช้ทุกเคส) ============ */
+const addonSectionHead = document.getElementById('addonSectionHead');
+function toggleAddonSection(forceOpen){
+  const body = document.getElementById('addonSectionBody');
+  const isOpen = body.style.display !== 'none';
+  const open = forceOpen !== undefined ? forceOpen : !isOpen;
+  body.style.display = open ? '' : 'none';
+  addonSectionHead.classList.toggle('open', open);
+}
+addonSectionHead.addEventListener('click', ()=> toggleAddonSection());
+addonSectionHead.addEventListener('keydown', e=>{
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleAddonSection(); }
+});
+
 const addonZoneRow = document.getElementById('addonZoneRow');
 buildZoneRow(addonZoneRow, code=>{
   state.addonZone = code;
@@ -1668,11 +1769,70 @@ buildZoneRow(addonZoneRow, code=>{
 buildProcChecklist(document.getElementById('addonChecklist'), ()=>state.addonZone, state.addonProcedures, refreshAddonSubtotal);
 
 function refreshAddonSubtotal(){
-  const total = procSetTotal(state.addonZone, state.addonProcedures);
+  const total = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures);
   const el = document.getElementById('addonSubtotal');
-  el.innerHTML = state.addonProcedures.size ? `<span>ยอดรวมหัตถการเสริม</span><span class="amt">฿${total.toLocaleString()}</span>` : 'ไม่มีบริการหัตถการเสริม';
+  const hasAny = state.addonProcedures.size || state.customAddonProcedures.length;
+  el.innerHTML = hasAny ? `<span>ยอดรวมหัตถการเสริม</span><span class="amt">฿${total.toLocaleString()}</span>` : 'ไม่มีบริการหัตถการเสริม';
   updateSummary();
 }
+
+/* ============ CUSTOM (FREE-TEXT) PROCEDURES — ชื่อ/ราคากรอกเอง นอกเหนือจากรายการมาตรฐาน ============ */
+function renderCustomProcList(listId, getArray, onChange){
+  const el = document.getElementById(listId);
+  el.innerHTML = '';
+  getArray().forEach((item, idx)=>{
+    const row = document.createElement('div');
+    row.className = 'custom-proc-row';
+    row.innerHTML = `<span class="proc-name">${escapeHtml(item.name)}</span><span class="proc-price">฿${Number(item.price).toLocaleString()}</span><button type="button" class="proc-remove" title="ลบรายการนี้">✕</button>`;
+    row.querySelector('.proc-remove').addEventListener('click', ()=>{
+      getArray().splice(idx, 1);
+      renderCustomProcList(listId, getArray, onChange);
+      onChange();
+    });
+    el.appendChild(row);
+  });
+}
+
+function setupCustomProcAdder(cfg){
+  const addBtn = document.getElementById(cfg.addBtnId);
+  const form = document.getElementById(cfg.formId);
+  const nameInput = document.getElementById(cfg.nameId);
+  const priceInput = document.getElementById(cfg.priceId);
+  const confirmBtn = document.getElementById(cfg.confirmBtnId);
+  const cancelBtn = document.getElementById(cfg.cancelBtnId);
+
+  const closeForm = ()=>{
+    form.style.display = 'none';
+    nameInput.value = '';
+    priceInput.value = '';
+  };
+  addBtn.addEventListener('click', ()=>{
+    form.style.display = 'flex';
+    nameInput.focus();
+  });
+  cancelBtn.addEventListener('click', closeForm);
+  confirmBtn.addEventListener('click', ()=>{
+    const name = nameInput.value.trim();
+    const price = Number(priceInput.value);
+    if(!name){ showToast('กรุณากรอกชื่อหัตถการ', true); nameInput.focus(); return; }
+    if(!price || price <= 0){ showToast('กรุณากรอกราคาที่ถูกต้อง', true); priceInput.focus(); return; }
+    cfg.getArray().push({ name, price });
+    renderCustomProcList(cfg.listId, cfg.getArray, cfg.onChange);
+    cfg.onChange();
+    closeForm();
+  });
+}
+// ใช้ getter function (ไม่ใช้ array อ้างอิงตรง) เพราะ resetForm() จะสร้างอ็อบเจ็กต์ state ใหม่ทั้งก้อน
+setupCustomProcAdder({
+  addBtnId:'btnAddCustomProc', formId:'customProcForm', nameId:'customProcName', priceId:'customProcPrice',
+  confirmBtnId:'btnConfirmCustomProc', cancelBtnId:'btnCancelCustomProc',
+  listId:'procCustomList', getArray: ()=>state.customProcedures, onChange: refreshProcSubtotal
+});
+setupCustomProcAdder({
+  addBtnId:'btnAddCustomAddonProc', formId:'customAddonProcForm', nameId:'customAddonProcName', priceId:'customAddonProcPrice',
+  confirmBtnId:'btnConfirmCustomAddonProc', cancelBtnId:'btnCancelCustomAddonProc',
+  listId:'addonCustomList', getArray: ()=>state.customAddonProcedures, onChange: refreshAddonSubtotal
+});
 
 /* ============ COURSE / PROGRAM PANEL ============ */
 function buildSimpleRadioRow(containerId, options, onSelect){
@@ -1827,8 +1987,37 @@ buildSimpleRadioRow('courseTherapistTypeRow', [
   updateSummary();
 });
 
+/* ============ MOBILE STICKY BAR — LIVE RUNNING TOTAL ============ */
+function updateMobileTotal(){
+  const el = document.getElementById('mobileSaveTotal');
+  if(!el) return;
+  let total = 0;
+  if(state.serviceType === 'package'){
+    const fee = Number(document.getElementById('f_monthlyFee').value) || 0;
+    const deposit = Number(document.getElementById('f_deposit').value) || 0;
+    const depositDue = document.getElementById('f_depositStatus').value === 'ยังไม่ชำระ';
+    const addonTotal = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures);
+    const assessmentFee = document.getElementById('f_assessmentFee').checked ? 1000 : 0;
+    const holidayAmt = getHolidayTotal();
+    total = fee + addonTotal + assessmentFee + holidayAmt + (depositDue ? deposit : 0);
+  } else if(state.serviceType === 'procedure'){
+    total = procSetTotal(state.procZone, state.procedures, state.customProcedures);
+  } else if(state.serviceType === 'course' && state.courseProgram){
+    const prog = COURSE_PROGRAMS[state.courseProgram];
+    const isSingle = state.coursePurchaseType === 'single';
+    if(isSingle && prog.singleSessionRate && !state.courseOption){
+      total = prog.singleSessionRate;
+    } else if(state.courseOption){
+      const opt = prog.options[state.courseOption];
+      total = isSingle ? opt.singleSession : courseOptionPrice(state.courseProgram, state.courseOption, state.coursePatientType);
+    }
+  }
+  el.textContent = 'ยอดรวม ฿' + total.toLocaleString();
+}
+
 /* ============ SUMMARY CARD ============ */
 function updateSummary(){
+  updateMobileTotal();
   const body = document.getElementById('clipBody');
 
   if(state.serviceType === 'procedure'){
@@ -2006,8 +2195,8 @@ function resetForm(){
   document.querySelectorAll('#formatRow input, #equipWrap input').forEach(el=>el.checked=false);
   state = {
     pkg:null, format:null, equipment:new Set(),
-    serviceType:'package', procZone:null, procedures:new Set(),
-    addonZone:null, addonProcedures:new Set(),
+    serviceType:'package', procZone:null, procedures:new Set(), customProcedures:[],
+    addonZone:null, addonProcedures:new Set(), customAddonProcedures:[],
     courseProgram:null, courseOption:null, coursePurchaseType:'bundle', coursePatientType:'OPD', courseTherapistType:'pt',
     billingEntity:'CMCC Home Care'
   };
@@ -2025,8 +2214,13 @@ function resetForm(){
 
   document.getElementById('procChecklist').innerHTML = '';
   document.getElementById('addonChecklist').innerHTML = '';
+  document.getElementById('procCustomList').innerHTML = '';
+  document.getElementById('addonCustomList').innerHTML = '';
+  document.getElementById('customProcForm').style.display = 'none';
+  document.getElementById('customAddonProcForm').style.display = 'none';
   document.getElementById('procSubtotal').textContent = 'เลือกโซนและหัตถการเพื่อดูยอดรวม';
   document.getElementById('addonSubtotal').textContent = 'ไม่มีบริการหัตถการเสริม';
+  toggleAddonSection(false);
 
   document.querySelectorAll('#courseProgramRow .radio-chip, #coursePurchaseTypeRow .radio-chip').forEach(c=>c.classList.remove('checked'));
   document.querySelector('#coursePurchaseTypeRow .radio-chip[data-val="bundle"]')?.classList.add('checked');
@@ -2117,6 +2311,32 @@ function applySmartDefaults(){
 }
 document.getElementById('btnClearSmartDefault').addEventListener('click', clearSmartDefaults);
 
+/* ============ FIRST-USE DISCOVERABILITY BADGES (newer features easy to miss) ============ */
+const NEW_FEATURE_KEY = 'cmcc_seenFeatures_v1';
+function getSeenFeatures(){
+  try{ return JSON.parse(localStorage.getItem(NEW_FEATURE_KEY)) || {}; }
+  catch(e){ return {}; }
+}
+function markFeatureSeen(name){
+  try{
+    const seen = getSeenFeatures();
+    seen[name] = true;
+    localStorage.setItem(NEW_FEATURE_KEY, JSON.stringify(seen));
+  }catch(e){}
+  document.querySelectorAll(`[data-feature-badge="${name}"]`).forEach(b=> b.remove());
+}
+(function initNewFeatureBadges(){
+  const seen = getSeenFeatures();
+  document.querySelectorAll('[data-feature]').forEach(el=>{
+    const name = el.dataset.feature;
+    if(seen[name]){
+      document.querySelectorAll(`[data-feature-badge="${name}"]`).forEach(b=> b.remove());
+    } else {
+      el.addEventListener('click', ()=> markFeatureSeen(name), {once:true});
+    }
+  });
+})();
+
 /* ============ AUTO-SAVE DRAFT (กันข้อมูลหายกรณีปิดแท็บ/รีเฟรชกลางคัน) ============ */
 const DRAFT_KEY = 'cmcc_draft_v1';
 let draftSaveTimer = null;
@@ -2132,8 +2352,8 @@ function collectDraftSnapshot(){
     state: {
       pkg: state.pkg, format: state.format, equipment: Array.from(state.equipment),
       serviceType: state.serviceType,
-      procZone: state.procZone, procedures: Array.from(state.procedures),
-      addonZone: state.addonZone, addonProcedures: Array.from(state.addonProcedures),
+      procZone: state.procZone, procedures: Array.from(state.procedures), customProcedures: state.customProcedures,
+      addonZone: state.addonZone, addonProcedures: Array.from(state.addonProcedures), customAddonProcedures: state.customAddonProcedures,
       courseProgram: state.courseProgram, courseOption: state.courseOption,
       coursePurchaseType: state.coursePurchaseType, coursePatientType: state.coursePatientType,
       courseTherapistType: state.courseTherapistType
@@ -2189,15 +2409,20 @@ function applyDraftState(ds){
       if(chip) chip.click();
     }
     (ds.addonProcedures||[]).forEach(k=> state.addonProcedures.add(k));
+    state.customAddonProcedures = ds.customAddonProcedures || [];
     buildProcChecklist(document.getElementById('addonChecklist'), ()=>state.addonZone, state.addonProcedures, refreshAddonSubtotal);
+    renderCustomProcList('addonCustomList', ()=>state.customAddonProcedures, refreshAddonSubtotal);
     refreshAddonSubtotal();
+    if(ds.addonZone || (ds.addonProcedures||[]).length || (ds.customAddonProcedures||[]).length) toggleAddonSection(true);
   } else if(ds.serviceType === 'procedure'){
     if(ds.procZone){
       const chip = document.querySelector(`#procZoneRow .radio-chip[data-val="${ds.procZone}"]`);
       if(chip) chip.click();
     }
     (ds.procedures||[]).forEach(k=> state.procedures.add(k));
+    state.customProcedures = ds.customProcedures || [];
     buildProcChecklist(document.getElementById('procChecklist'), ()=>state.procZone, state.procedures, refreshProcSubtotal);
+    renderCustomProcList('procCustomList', ()=>state.customProcedures, refreshProcSubtotal);
     refreshProcSubtotal();
   } else if(ds.serviceType === 'course'){
     if(ds.courseProgram){
@@ -2279,9 +2504,30 @@ function genRequestId(){
   return 'req-' + Date.now() + '-' + Math.random().toString(36).slice(2);
 }
 
-function procListText(zone, set){
-  if(!zone || !set.size) return '';
-  return Array.from(set).map(k=> `${PROCEDURES[k].name} (${ZONES[zone].label.split(' ·')[0]}) ฿${PROCEDURES[k].price[zone].toLocaleString()}`).join('; ');
+function procListText(zone, set, customArr){
+  const parts = [];
+  if(zone && set && set.size){
+    Array.from(set).forEach(k=> parts.push(`${PROCEDURES[k].name} (${ZONES[zone].label.split(' ·')[0]}) ฿${PROCEDURES[k].price[zone].toLocaleString()}`));
+  }
+  if(customArr && customArr.length){
+    customArr.forEach(item=> parts.push(`${item.name} ฿${Number(item.price).toLocaleString()}`));
+  }
+  return parts.join('; ');
+}
+
+// ดึงรายการหัตถการแบบกรอกเอง (custom) กลับออกมาจากข้อความที่บันทึกไว้ใน Sheet ตอนแก้ไข/คัดลอกเคสเดิม
+// ส่วนที่ไม่ตรงกับชื่อหัตถการมาตรฐานใน PROCEDURES ถือว่าเป็นรายการกรอกเอง
+function extractCustomProcItems(procText, matchedProcKeys){
+  if(!procText) return [];
+  const matchedNames = matchedProcKeys.map(k => PROCEDURES[k].name);
+  return procText.split('; ')
+    .filter(seg => seg && !matchedNames.some(n => seg.includes(n)))
+    .map(seg => {
+      const m = seg.match(/^(.*?)\s*฿([\d,]+)\s*$/);
+      if(!m) return null;
+      return { name: m[1].trim(), price: Number(m[2].replace(/,/g, '')) };
+    })
+    .filter(Boolean);
 }
 
 async function saveRecord(){
@@ -2307,9 +2553,10 @@ async function saveRecord(){
   const isProcedure = state.serviceType === 'procedure';
   const isCourse = state.serviceType === 'course';
 
-  const procTotal = isPackage ? procSetTotal(state.addonZone, state.addonProcedures) : (isProcedure ? procSetTotal(state.procZone, state.procedures) : 0);
+  const procTotal = isPackage ? procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures) : (isProcedure ? procSetTotal(state.procZone, state.procedures, state.customProcedures) : 0);
   const procZoneUsed = isPackage ? state.addonZone : (isProcedure ? state.procZone : null);
   const procSetUsed = isPackage ? state.addonProcedures : (isProcedure ? state.procedures : new Set());
+  const procCustomUsed = isPackage ? state.customAddonProcedures : (isProcedure ? state.customProcedures : []);
 
   let courseProgramLabel = '', courseOptionLabel = '', courseSessionsTotal = '', courseSessionsUsed = '', courseTotalPrice = '';
   if(isCourse){
@@ -2372,7 +2619,7 @@ async function saveRecord(){
     billingEntity: state.billingEntity,
     serviceTypeLabel: isPackage ? 'แพ็กเกจรายเดือน' : (isProcedure ? 'บริการหัตถการครั้งเดียว' : 'คอร์ส/โปรแกรมบริการ'),
     zoneLabel: procZoneUsed ? ZONES[procZoneUsed].label.split(' ·')[0] : '',
-    procedureListText: procListText(procZoneUsed, procSetUsed),
+    procedureListText: procListText(procZoneUsed, procSetUsed, procCustomUsed),
     procedureTotal: procTotal || '',
     courseProgramLabel, courseOptionLabel, courseSessionsTotal, courseSessionsUsed, courseTotalPrice,
     clientRequestId: genRequestId()
@@ -2520,7 +2767,7 @@ function openInvoice(payload, refId){
       `โปรแกรม: ${payload.courseProgramLabel||'—'}`,
       `แพ็กเกจคอร์ส: ${payload.courseOptionLabel||'—'}`,
       isSingleVisit ? '' : `จำนวนครั้ง: ใช้ไป ${used}/${total} ครั้ง (คงเหลือ ${remaining} ครั้ง)`,
-      `วันเริ่มบริการ: ${payload.startDate||'—'}`,
+      `วันเริ่มบริการ: ${cleanDateDisplay(payload.startDate)}`,
       `เจ้าหน้าที่ผู้ดูแล: ${payload.caregiver||'แจ้งภายหลัง'}`,
       '',
       isSingleVisit ? `ราคาต่อครั้ง: ฿${price.toLocaleString()}` : `ราคาคอร์สรวม: ฿${price.toLocaleString()}`,
@@ -2616,7 +2863,7 @@ function openInvoice(payload, refId){
     '',
     isPackage ? `แพ็กเกจ: ${payload.packageName||'—'}` : `ประเภทบริการ: บริการหัตถการครั้งเดียว (${payload.zoneLabel||'—'})`,
     isPackage ? `รูปแบบบริการ: ${payload.serviceFormat||'—'}` : '',
-    `วันเริ่มบริการ: ${payload.startDate||'—'}`,
+    `วันเริ่มบริการ: ${cleanDateDisplay(payload.startDate)}`,
     `เจ้าหน้าที่ผู้ดูแล: ${payload.caregiver||'แจ้งภายหลัง'}`,
     '',
     isPackage ? `ค่าบริการรายเดือน: ฿${fee.toLocaleString()}` : '',
@@ -2682,7 +2929,7 @@ function openInvoice(payload, refId){
       <div class="inv-service-row"><span>ประเภทบริการ</span><b>บริการหัตถการครั้งเดียว</b></div>
       <div class="inv-service-row"><span>โซนบริการ</span><b>${escapeHtml(payload.zoneLabel || '—')}</b></div>
       `}
-      <div class="inv-service-row"><span>วันเริ่มบริการ</span><b>${escapeHtml(payload.startDate || '—')}</b></div>
+      <div class="inv-service-row"><span>วันเริ่มบริการ</span><b>${escapeHtml(cleanDateDisplay(payload.startDate))}</b></div>
       <div class="inv-service-row"><span>เจ้าหน้าที่ผู้ดูแล</span><b>${escapeHtml(payload.caregiver || 'แจ้งภายหลัง')}</b></div>
     </div>
 
@@ -2777,7 +3024,55 @@ document.getElementById('recordsBody').addEventListener('click', e=>{
   if(printBtn){ reprintInvoice(printBtn.dataset.printId); return; }
   const dupBtn = e.target.closest('.icon-btn[data-duplicate-id]');
   if(dupBtn){ duplicateRecord(dupBtn.dataset.duplicateId); return; }
+  const delBtn = e.target.closest('.icon-btn[data-delete-id]');
+  if(delBtn){ deleteRecord(delBtn.dataset.deleteId, delBtn.dataset.deleteName); return; }
 });
+
+/* ============ CONFIRM MODAL (reusable) ============ */
+function showConfirm(title, message, onConfirm){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').textContent = message;
+  const modal = document.getElementById('confirmModal');
+  modal.classList.add('show');
+  const okBtn = document.getElementById('btnConfirmOk');
+  const cancelBtn = document.getElementById('btnConfirmCancel');
+  const close = ()=> modal.classList.remove('show');
+  const onOk = ()=>{ close(); onConfirm(); cleanup(); };
+  const onCancel = ()=>{ close(); cleanup(); };
+  function cleanup(){
+    okBtn.removeEventListener('click', onOk);
+    cancelBtn.removeEventListener('click', onCancel);
+  }
+  okBtn.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+}
+
+/* ============ DELETE RECORD ============ */
+async function deleteRecord(id, name){
+  showConfirm(
+    'ยืนยันการลบเคส',
+    `ต้องการลบข้อมูลของ "${name || 'รายการนี้'}" ใช่หรือไม่? การลบไม่สามารถย้อนกลับได้`,
+    async ()=>{
+      try{
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ deleteId: id, recordedBy: document.getElementById('f_recordedBy').value })
+        });
+        const data = await res.json();
+        if(data.ok){
+          allRecords = allRecords.filter(r => String(r['id']) !== String(id));
+          renderRecords();
+          showToast('ลบข้อมูลเรียบร้อยแล้ว');
+        } else {
+          showToast(data.error || 'ลบข้อมูลไม่สำเร็จ', true);
+        }
+      }catch(err){
+        showToast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง', true);
+      }
+    }
+  );
+}
 
 function reprintInvoice(id){
   const r = allRecords.find(rec => String(rec['id']) === String(id));
@@ -2888,6 +3183,7 @@ function fillFormFromRecord(r){
   const zoneCode = zoneMatch ? zoneMatch[1] : null;
   const procText = String(r['รายการหัตถการ'] || '');
   const matchedProcKeys = Object.keys(PROCEDURES).filter(k => procText.includes(PROCEDURES[k].name));
+  const matchedCustomItems = extractCustomProcItems(procText, matchedProcKeys);
 
   if(r['ประเภทเคส'] === 'บริการหัตถการครั้งเดียว'){
     state.serviceType = 'procedure';
@@ -2904,7 +3200,9 @@ function fillFormFromRecord(r){
       document.querySelector(`#procZoneRow .radio-chip[data-val="${zoneCode}"]`)?.classList.add('checked');
     }
     matchedProcKeys.forEach(k => state.procedures.add(k));
+    state.customProcedures = matchedCustomItems;
     buildProcChecklist(document.getElementById('procChecklist'), ()=>state.procZone, state.procedures, refreshProcSubtotal);
+    renderCustomProcList('procCustomList', ()=>state.customProcedures, refreshProcSubtotal);
     refreshProcSubtotal();
   } else if(r['ประเภทเคส'] === 'คอร์ส/โปรแกรมบริการ'){
     const programKey = Object.keys(COURSE_PROGRAMS).find(k => COURSE_PROGRAMS[k].name === r['โปรแกรมคอร์ส']);
@@ -2959,12 +3257,17 @@ function fillFormFromRecord(r){
         updateCourseSubtotal();
       }
     }
-  } else if(zoneCode && matchedProcKeys.length){
-    state.addonZone = zoneCode;
+  } else if(matchedProcKeys.length || matchedCustomItems.length){
+    if(zoneCode){
+      state.addonZone = zoneCode;
+      document.querySelector(`#addonZoneRow .radio-chip[data-val="${zoneCode}"]`)?.classList.add('checked');
+    }
     matchedProcKeys.forEach(k => state.addonProcedures.add(k));
-    document.querySelector(`#addonZoneRow .radio-chip[data-val="${zoneCode}"]`)?.classList.add('checked');
+    state.customAddonProcedures = matchedCustomItems;
     buildProcChecklist(document.getElementById('addonChecklist'), ()=>state.addonZone, state.addonProcedures, refreshAddonSubtotal);
+    renderCustomProcList('addonCustomList', ()=>state.customAddonProcedures, refreshAddonSubtotal);
     refreshAddonSubtotal();
+    toggleAddonSection(true);
   }
 
   updateBillingEntity();
@@ -3158,7 +3461,7 @@ function renderRecords(){
       <td><div class="cell-name">${escapeHtml(r['ชื่อผู้รับบริการ']||'—')}</div><div class="cell-sub">${escapeHtml(r['ผู้ติดต่อ']||'')}</div></td>
       <td>${pkgCell}</td>
       <td>${(isProc || isCourse) ? '—' : escapeHtml(r['รูปแบบบริการ']||'—')}</td>
-      <td>${escapeHtml(r['วันเริ่มบริการ']||'—')}</td>
+      <td>${escapeHtml(cleanDateDisplay(r['วันเริ่มบริการ']))}</td>
       <td><span class="badge ${cls}">${escapeHtml(r['สถานะ']||'—')}</span></td>
       <td class="font-mono">${fee ? '฿'+Number(fee).toLocaleString() : '—'}</td>
       <td>${escapeHtml(r['เจ้าหน้าที่ผู้ดูแล']||'—')}</td>
@@ -3172,6 +3475,9 @@ function renderRecords(){
           </button>
           <button class="icon-btn" data-duplicate-id="${escapeHtml(r['id'])}" title="คัดลอกเป็นเคสใหม่ (ลูกค้าเดิมกลับมาใช้บริการซ้ำ)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M4 16V6a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-btn" data-delete-id="${escapeHtml(r['id'])}" data-delete-name="${escapeHtml(r['ชื่อผู้รับบริการ']||'')}" title="ลบรายการนี้" style="color:var(--rose);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
       </td>
@@ -3300,7 +3606,7 @@ document.getElementById('btnExportPDF').addEventListener('click', async ()=>{
           <td style="padding:6px;">${escapeHtml(r['ชื่อผู้รับบริการ']||'—')}</td>
           <td style="padding:6px;">${escapeHtml(r['แพ็กเกจ']||'—')}</td>
           <td style="padding:6px;">${escapeHtml(r['รูปแบบบริการ']||'—')}</td>
-          <td style="padding:6px;">${escapeHtml(r['วันเริ่มบริการ']||'—')}</td>
+          <td style="padding:6px;">${escapeHtml(cleanDateDisplay(r['วันเริ่มบริการ']))}</td>
           <td style="padding:6px;">${escapeHtml(r['สถานะ']||'—')}</td>
           <td style="padding:6px; text-align:right;">${r['ค่าบริการต่อเดือน (บาท)'] ? '฿'+Number(r['ค่าบริการต่อเดือน (บาท)']).toLocaleString() : '—'}</td>
           <td style="padding:6px;">${escapeHtml(r['เจ้าหน้าที่ผู้ดูแล']||'—')}</td>
@@ -3318,6 +3624,14 @@ function escapeHtml(str){
   const div = document.createElement('div');
   div.textContent = str == null ? '' : String(str);
   return div.innerHTML;
+}
+
+// กันวันที่เพี้ยน — บางครั้งค่าที่อ่านกลับมาจาก Google Sheet จะติดเวลามาด้วย (เช่น 2026-08-10T17:00:00.000Z)
+// เพราะชีตตีความสตริงวันที่เป็นวันที่จริงอัตโนมัติ ฟังก์ชันนี้ตัดให้เหลือแค่ส่วนวันที่เพื่อให้แสดงผลตรงกันทุกจุด
+function cleanDateDisplay(v){
+  if(!v) return '—';
+  const s = String(v);
+  return s.includes('T') ? s.slice(0, 10) : s;
 }
 
 /* ============ FIELD-LEVEL VALIDATION HIGHLIGHT ============ */
