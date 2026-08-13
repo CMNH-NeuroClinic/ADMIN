@@ -2846,7 +2846,7 @@ function openInvoice(payload, refId){
   const holidayDays = Number(payload.holidayChargeDays) || 0;
   const holidayAmount = Number(payload.holidayChargeAmount) || (holidayRate * holidayDays) || 0;
   const holidayBreakdown = holidayRate && holidayDays ? `฿${holidayRate.toLocaleString()} × ${holidayDays} วัน = ฿${holidayAmount.toLocaleString()}` : `฿${holidayAmount.toLocaleString()}`;
-  const dailyRate = Number(payload.dailyRate) || 0;
+  const dailyRate = Number(payload.dailyRate) || (p && p.daily && payload.serviceFormat ? (p.daily[String(payload.serviceFormat).match(/\d+/)?.[0]] || 0) : 0);
   const total = isPackage ? (fee + (depositDue ? deposit : 0) + procTotal + assessmentFee + holidayAmount) : procTotal;
   const includes = p ? p.includes : [];
   const procItems = payload.procedureListText ? payload.procedureListText.split('; ') : [];
