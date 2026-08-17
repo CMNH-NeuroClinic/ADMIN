@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CMCC HOME CARE · ระบบบันทึกข้อมูลบริการ</title>
+<title>CMCC HOME CARE by CMNH · ระบบบันทึกข้อมูลบริการ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Taviraj:wght@500;600;700&family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -411,6 +411,26 @@
   }
   .proc-subtotal .amt{font-family:'IBM Plex Mono'; color:var(--teal-900); font-size:15px;}
 
+  /* manual-price checklist — same names as the standard list, price entered by hand */
+  .manual-price-label{
+    font-size:11.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.3px;
+    margin:14px 0 8px;
+  }
+  .manual-price-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    border:none; border-radius:14px; padding:9px 14px; margin-bottom:8px;
+    background:var(--surface); box-shadow:var(--shadow-card); transition:all .15s;
+  }
+  .manual-price-row.checked{background:var(--teal-100); box-shadow:var(--clay-inset), 0 0 0 2px var(--teal-600);}
+  .manual-price-row .box{width:16px; height:16px; border-radius:5px; border:2px solid var(--line); flex-shrink:0; position:relative; cursor:pointer;}
+  .manual-price-row.checked .box{border-color:var(--teal-600); background:var(--teal-600);}
+  .manual-price-row.checked .box::after{content:''; position:absolute; left:4px; top:1px; width:3.5px; height:8px; border:solid white; border-width:0 2px 2px 0; transform:rotate(40deg);}
+  .manual-price-row .proc-name{font-size:13.5px; font-weight:600; color:var(--ink); flex:1; cursor:pointer;}
+  .manual-price-row .manual-price-input{
+    width:104px; flex-shrink:0; text-align:right; font-family:'IBM Plex Mono'; font-size:13px; padding:8px 10px;
+  }
+  .manual-price-row .manual-price-input:disabled{opacity:.45; cursor:not-allowed;}
+
   /* custom (free-text) procedure rows */
   .custom-proc-row{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -789,7 +809,7 @@
       <img src="data:image/png;base64,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" alt="CMCC logo" style="width:78%; height:78%; object-fit:contain;">
     </div>
     <div>
-      <div class="brand-name">CMCC HOME CARE</div>
+      <div class="brand-name">CMCC HOME CARE by CMNH</div>
       <div class="brand-sub">ระบบบันทึกข้อมูลบริการ · Admin หลังบ้าน</div>
     </div>
   </div>
@@ -982,6 +1002,8 @@
             <div class="field">
               <label>รายการหัตถการ (เลือกได้หลายรายการ)<span class="req">*</span></label>
               <div id="procChecklist"></div>
+              <div class="manual-price-label">รายการหัตถการ (ราคากรอกเอง)</div>
+              <div id="procManualChecklist"></div>
               <div id="procCustomList"></div>
               <button type="button" class="btn btn-ghost btn-sm" id="btnAddCustomProc" data-feature="customProc" style="margin-top:8px; position:relative;">+ เพิ่มหัตถการอื่นๆ (กรอกชื่อ/ราคาเอง)<span class="new-badge" data-feature-badge="customProc">ใหม่</span></button>
               <div class="custom-proc-form" id="customProcForm" style="display:none;">
@@ -1042,6 +1064,14 @@
           <div class="field package-only" style="margin-bottom:16px;">
             <label>รูปแบบบริการ<span class="req">*</span></label>
             <div class="radio-row" id="formatRow">
+              <label class="radio-chip" data-val="8">
+                <input type="radio" name="format" value="8">
+                <span class="dot"></span> 8 ชั่วโมง (ไป-กลับ) · 6 วัน/สัปดาห์
+              </label>
+              <label class="radio-chip" data-val="10">
+                <input type="radio" name="format" value="10">
+                <span class="dot"></span> 10 ชั่วโมง (ไป-กลับ) · 6 วัน/สัปดาห์
+              </label>
               <label class="radio-chip" data-val="12">
                 <input type="radio" name="format" value="12">
                 <span class="dot"></span> 12 ชั่วโมง (ไป-กลับ) · 6 วัน/สัปดาห์
@@ -1077,6 +1107,8 @@
             <div class="field">
               <label>รายการหัตถการเสริม</label>
               <div id="addonChecklist"></div>
+              <div class="manual-price-label">รายการหัตถการเสริม (ราคากรอกเอง)</div>
+              <div id="addonManualChecklist"></div>
               <div id="addonCustomList"></div>
               <button type="button" class="btn btn-ghost btn-sm" id="btnAddCustomAddonProc" data-feature="customProc" style="margin-top:8px; position:relative;">+ เพิ่มหัตถการอื่นๆ (กรอกชื่อ/ราคาเอง)<span class="new-badge" data-feature-badge="customProc">ใหม่</span></button>
               <div class="custom-proc-form" id="customAddonProcForm" style="display:none;">
@@ -1094,7 +1126,7 @@
           <div class="section-head">
             <span class="section-num">05</span>
             <span class="section-title">กำหนดการ, เจ้าหน้าที่ และการเงิน</span>
-            <span class="section-hint" id="billingEntityBadge">ออกเอกสารในนาม: CMCC Home Care</span>
+            <span class="section-hint" id="billingEntityBadge">ออกเอกสารในนาม: CMCC Home Care by CMNH</span>
           </div>
           <div class="field-grid cols-3">
             <div class="field">
@@ -1384,35 +1416,35 @@ const PACKAGES = {
     name: 'ผู้สูงอายุทั่วไป', tag: 'Elderly Care Package',
     suited: 'ช่วยเหลือตัวเองได้น้อย · อยู่ลำพัง · พักฟื้นหลังผ่าตัด',
     includes: ['ดูแลกิจวัตรประจำวัน, อาบน้ำ, เปลี่ยนเสื้อผ้า', 'เตรียมอาหาร และให้ยา', 'วัดสัญญาณชีพและรายงานอาการแก่ครอบครัว'],
-    price: {12:[16000,18000], 24:[16000,20000]}, daily:{12:800,24:1300},
+    price: {8:[16000,18000], 10:[16000,18000], 12:[16000,18000], 24:[16000,20000]}, daily:{8:800, 10:800, 12:800, 24:1300},
     icon: 'M12 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z M6 21v-3a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v3 M9 21h6'
   },
   feed: {
     name: 'ผู้ป่วยให้อาหารทางสาย', tag: 'Nutrition Support Package',
     suited: 'NG Tube · PEG Tube',
     includes: ['เตรียมอาหารและให้อาหารทางสาย', 'ดูแลสายอาหาร ล้างอุปกรณ์', 'เฝ้าระวังการสำลัก และดูแลแผล PEG'],
-    price: {12:[16000,18000], 24:[20000,22000]}, daily:{12:800,24:1300},
+    price: {8:[16000,18000], 10:[16000,18000], 12:[16000,18000], 24:[20000,22000]}, daily:{8:800, 10:800, 12:800, 24:1300},
     icon: 'M8 3v6a4 4 0 0 0 4 4v0a4 4 0 0 0 4-4V3 M12 13v8 M9 21h6'
   },
   stroke: {
     name: 'ผู้ป่วยโรคหลอดเลือดสมอง', tag: 'Stroke Recovery Package',
     suited: 'Stroke · Hemiplegia · Parkinson',
     includes: ['กายภาพเบื้องต้น ฝึกเดิน ฝึกนั่ง ฝึกยืน', 'พลิกตะแคงตัว ป้องกันแผลกดทับ', 'ประเมินความก้าวหน้าการฟื้นตัว'],
-    price: {12:[16000,18000], 24:[18000,22000]}, daily:{12:800,24:1200},
+    price: {8:[16000,18000], 10:[16000,18000], 12:[16000,18000], 24:[18000,22000]}, daily:{8:800, 10:800, 12:800, 24:1200},
     icon: 'M12 5v3 M9 21l2-7-3-2 1-5 4 1 2 3h3 M13 12l3 2 2 6'
   },
   advanced: {
     name: 'ผู้ป่วยเจาะคอ / ดูดเสมหะ', tag: 'Advanced Nursing Package',
     suited: 'Tracheostomy · Suction · Oxygen Therapy',
     includes: ['ดูดเสมหะ และทำแผลเจาะคอ (TT Tube)', 'ประเมินการหายใจ เฝ้าระวังภาวะแทรกซ้อน', 'ประสานทีมพยาบาลอย่างใกล้ชิด'],
-    price: {12:[17000,18000], 24:[23000,25000]}, daily:{12:800,24:1400},
+    price: {8:[17000,18000], 10:[17000,18000], 12:[17000,18000], 24:[23000,25000]}, daily:{8:800, 10:800, 12:800, 24:1400},
     icon: 'M6 4v6a4 4 0 0 0 8 0V4 M10 20a4 4 0 0 0 4-4v-2 M18 4v4a2 2 0 0 1-2 2'
   },
   memory: {
     name: 'ผู้ป่วยอัลไซเมอร์', tag: 'Memory Care Package',
     suited: "Alzheimer's · Dementia · เดินหลง",
     includes: ['เฝ้าระวังการเดินหลง ลดความเสี่ยงพลัดตก', 'กระตุ้นความจำ กิจกรรมฝึกสมอง', 'ดูแลด้านอารมณ์ รายงานพฤติกรรมประจำวัน'],
-    price: {12:[17000,18000], 24:[18000,22000]}, daily:{12:800,24:1300},
+    price: {8:[17000,18000], 10:[17000,18000], 12:[17000,18000], 24:[18000,22000]}, daily:{8:800, 10:800, 12:800, 24:1300},
     icon: 'M9 4a4 4 0 0 0-4 4c0 1.2.5 2 1 2.7C5.4 11.6 5 12.7 5 14a4 4 0 0 0 4 4h1v2h4v-2h1a4 4 0 0 0 4-4c0-1.3-.4-2.4-1-3.3.5-.7 1-1.5 1-2.7a4 4 0 0 0-4-4 4 4 0 0 0-3-1.3A4 4 0 0 0 9 4Z'
   }
 };
@@ -1486,10 +1518,10 @@ function courseOptionPrice(programKey, optionKey, patientType){
 let state = {
   pkg: null, format: null, equipment: new Set(),
   serviceType: 'package',
-  procZone: null, procedures: new Set(), customProcedures: [],
-  addonZone: null, addonProcedures: new Set(), customAddonProcedures: [],
+  procZone: null, procedures: new Set(), customProcedures: [], procManualPrices: {},
+  addonZone: null, addonProcedures: new Set(), customAddonProcedures: [], addonManualPrices: {},
   courseProgram: null, courseOption: null, coursePurchaseType: 'bundle', coursePatientType: 'OPD', courseTherapistType: 'pt',
-  billingEntity: 'CMCC Home Care'
+  billingEntity: 'CMCC Home Care by CMNH'
 };
 let webhookUrl = 'https://script.google.com/macros/s/AKfycbyd2aL8atlZw2hdO7NG0yP4dBN7DDCZAVu1EdD_LouRd3lpErIX04lBufWwkgnrWcfJgA/exec';
 let allRecords = [];
@@ -1654,7 +1686,7 @@ document.querySelectorAll('#serviceTypeRow .radio-chip').forEach(chip=>{
 
 /* ============ BILLING ENTITY (auto by service type — not admin-selectable) ============ */
 function updateBillingEntity(){
-  state.billingEntity = state.serviceType === 'package' ? 'CMCC Home Care' : 'คลินิกหมอต้น';
+  state.billingEntity = state.serviceType === 'package' ? 'CMCC Home Care by CMNH' : 'คลินิกหมอต้น';
   document.getElementById('billingEntityBadge').textContent = `ออกเอกสารในนาม: ${state.billingEntity}`;
 }
 
@@ -1718,11 +1750,49 @@ function buildProcChecklist(container, zoneGetter, selectedSet, onToggle){
   });
 }
 
-function procSetTotal(zone, set, customArr){
+function procSetTotal(zone, set, customArr, manualPrices){
   let total = 0;
   if(zone && set) set.forEach(key=>{ total += PROCEDURES[key].price[zone] || 0; });
   if(customArr) customArr.forEach(item=> total += Number(item.price) || 0);
+  if(manualPrices) Object.values(manualPrices).forEach(p=> total += Number(p) || 0);
   return total;
+}
+
+// รายการหัตถการชื่อเดียวกับรายการมาตรฐาน แต่ราคากรอกเอง (ไม่ผูกกับราคาตามโซน) — ใช้กรณีคิดราคาไม่เหมือนกันในแต่ละเคส
+function buildManualPriceChecklist(container, pricesObj, onChange){
+  container.innerHTML = '';
+  Object.entries(PROCEDURES).forEach(([key, proc])=>{
+    const isChecked = pricesObj.hasOwnProperty(key);
+    const row = document.createElement('div');
+    row.className = 'manual-price-row' + (isChecked ? ' checked' : '');
+    row.innerHTML = `<label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; min-width:0;">
+        <input type="checkbox" style="display:none;" ${isChecked ? 'checked' : ''}>
+        <span class="box"></span>
+        <span class="proc-name">${proc.name}</span>
+      </label>
+      <input type="number" class="manual-price-input" placeholder="ราคา" min="0" value="${isChecked ? pricesObj[key] : ''}" ${isChecked ? '' : 'disabled'}>`;
+    const checkbox = row.querySelector('input[type=checkbox]');
+    const priceInput = row.querySelector('.manual-price-input');
+    checkbox.addEventListener('change', e=>{
+      row.classList.toggle('checked', e.target.checked);
+      priceInput.disabled = !e.target.checked;
+      if(e.target.checked){
+        pricesObj[key] = Number(priceInput.value) || 0;
+        priceInput.focus();
+      } else {
+        delete pricesObj[key];
+        priceInput.value = '';
+      }
+      onChange();
+    });
+    priceInput.addEventListener('input', ()=>{
+      if(checkbox.checked){
+        pricesObj[key] = Number(priceInput.value) || 0;
+        onChange();
+      }
+    });
+    container.appendChild(row);
+  });
 }
 
 // Primary (standalone procedure-type case)
@@ -1734,11 +1804,12 @@ buildZoneRow(procZoneRow, code=>{
   updateSummary();
 });
 buildProcChecklist(document.getElementById('procChecklist'), ()=>state.procZone, state.procedures, refreshProcSubtotal);
+buildManualPriceChecklist(document.getElementById('procManualChecklist'), state.procManualPrices, refreshProcSubtotal);
 
 function refreshProcSubtotal(){
-  const total = procSetTotal(state.procZone, state.procedures, state.customProcedures);
+  const total = procSetTotal(state.procZone, state.procedures, state.customProcedures, state.procManualPrices);
   const el = document.getElementById('procSubtotal');
-  const hasAny = state.procedures.size || state.customProcedures.length;
+  const hasAny = state.procedures.size || state.customProcedures.length || Object.keys(state.procManualPrices).length;
   el.innerHTML = hasAny ? `<span>ยอดรวมหัตถการ</span><span class="amt">฿${total.toLocaleString()}</span>` : 'เลือกโซนและหัตถการเพื่อดูยอดรวม';
   el.style.display = 'flex';
   updateSummary();
@@ -1767,11 +1838,12 @@ buildZoneRow(addonZoneRow, code=>{
   updateSummary();
 });
 buildProcChecklist(document.getElementById('addonChecklist'), ()=>state.addonZone, state.addonProcedures, refreshAddonSubtotal);
+buildManualPriceChecklist(document.getElementById('addonManualChecklist'), state.addonManualPrices, refreshAddonSubtotal);
 
 function refreshAddonSubtotal(){
-  const total = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures);
+  const total = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices);
   const el = document.getElementById('addonSubtotal');
-  const hasAny = state.addonProcedures.size || state.customAddonProcedures.length;
+  const hasAny = state.addonProcedures.size || state.customAddonProcedures.length || Object.keys(state.addonManualPrices).length;
   el.innerHTML = hasAny ? `<span>ยอดรวมหัตถการเสริม</span><span class="amt">฿${total.toLocaleString()}</span>` : 'ไม่มีบริการหัตถการเสริม';
   updateSummary();
 }
@@ -1996,12 +2068,12 @@ function updateMobileTotal(){
     const fee = Number(document.getElementById('f_monthlyFee').value) || 0;
     const deposit = Number(document.getElementById('f_deposit').value) || 0;
     const depositDue = document.getElementById('f_depositStatus').value === 'ยังไม่ชำระ';
-    const addonTotal = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures);
+    const addonTotal = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices);
     const assessmentFee = document.getElementById('f_assessmentFee').checked ? 1000 : 0;
     const holidayAmt = getHolidayTotal();
     total = fee + addonTotal + assessmentFee + holidayAmt + (depositDue ? deposit : 0);
   } else if(state.serviceType === 'procedure'){
-    total = procSetTotal(state.procZone, state.procedures, state.customProcedures);
+    total = procSetTotal(state.procZone, state.procedures, state.customProcedures, state.procManualPrices);
   } else if(state.serviceType === 'course' && state.courseProgram){
     const prog = COURSE_PROGRAMS[state.courseProgram];
     const isSingle = state.coursePurchaseType === 'single';
@@ -2021,22 +2093,26 @@ function updateSummary(){
   const body = document.getElementById('clipBody');
 
   if(state.serviceType === 'procedure'){
-    const total = procSetTotal(state.procZone, state.procedures);
-    if(!state.procZone || state.procedures.size === 0){
+    const total = procSetTotal(state.procZone, state.procedures, state.customProcedures, state.procManualPrices);
+    const hasAnyItem = state.procedures.size || state.customProcedures.length || Object.keys(state.procManualPrices).length;
+    if(!hasAnyItem){
       body.innerHTML = `<div class="clip-empty"><div class="big">ยังไม่ได้เลือกหัตถการ</div>เลือกโซนและรายการหัตถการทางซ้ายเพื่อดูยอดรวม</div>`;
       return;
     }
+    const zoneItems = state.procZone ? Array.from(state.procedures).map(k=>`<li>${PROCEDURES[k].name} — ฿${PROCEDURES[k].price[state.procZone].toLocaleString()}</li>`) : [];
+    const manualItems = Object.entries(state.procManualPrices).map(([k,p])=>`<li>${PROCEDURES[k].name} (กรอกราคาเอง) — ฿${Number(p).toLocaleString()}</li>`);
+    const customItems = state.customProcedures.map(item=>`<li>${item.name} — ฿${Number(item.price).toLocaleString()}</li>`);
     body.innerHTML = `
       <div class="clip-header">
         <div class="clip-pkgname">บริการหัตถการครั้งเดียว</div>
-        <div class="clip-pkgtag">${ZONES[state.procZone].label}</div>
+        <div class="clip-pkgtag">${state.procZone ? ZONES[state.procZone].label : 'ไม่ระบุโซน (ราคากรอกเอง)'}</div>
       </div>
       <div class="clip-fee">
         <span class="lbl">ยอดรวมค่าบริการ</span>
         <span class="val">฿${total.toLocaleString()}</span>
       </div>
       <div class="clip-section-lbl">รายการที่เลือก</div>
-      <ul class="clip-checklist">${Array.from(state.procedures).map(k=>`<li>${PROCEDURES[k].name} — ฿${PROCEDURES[k].price[state.procZone].toLocaleString()}</li>`).join('')}</ul>
+      <ul class="clip-checklist">${[...zoneItems, ...manualItems, ...customItems].join('')}</ul>
     `;
     return;
   }
@@ -2117,7 +2193,7 @@ function updateSummary(){
   const fmt = state.format;
   const priceRange = fmt ? p.price[fmt] : null;
   const dailyRate = fmt ? p.daily[fmt] : null;
-  const addonTotal = procSetTotal(state.addonZone, state.addonProcedures);
+  const addonTotal = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices);
   // ดึงยอดเงินวันหยุดมาคำนวณ (ราคาต่อวัน × จำนวนวัน)
   const holidayAmt = getHolidayTotal();
 
@@ -2132,10 +2208,10 @@ function updateSummary(){
     ${holidayAmt ? `<div class="clip-row"><span>วันหยุด/นักขัตฤกษ์</span><b style="color:var(--teal-700);">+ ฿${holidayAmt.toLocaleString()}</b></div>` : ''}
     <div class="clip-fee">
       <span class="lbl">ค่าบริการโดยประมาณ / เดือน</span>
-      <span class="val">${priceRange ? `฿${priceRange[0].toLocaleString()}–${priceRange[1].toLocaleString()}` : '฿'+p.price[12][0].toLocaleString()+'–'+p.price[24][1].toLocaleString()}</span>
+      <span class="val">${priceRange ? `฿${priceRange[0].toLocaleString()}–${priceRange[1].toLocaleString()}` : (fmt ? 'กรอกเอง' : '฿'+p.price[12][0].toLocaleString()+'–'+p.price[24][1].toLocaleString())}</span>
     </div>
     ${addonTotal ? `<div class="clip-fee" style="background:var(--amber); color:#4A3212;">
-      <span class="lbl" style="color:#4A3212; opacity:.8;">+ หัตถการเสริม (${ZONES[state.addonZone].label})</span>
+      <span class="lbl" style="color:#4A3212; opacity:.8;">+ หัตถการเสริม${state.addonZone ? ' ('+ZONES[state.addonZone].label+')' : ''}</span>
       <span class="val">฿${addonTotal.toLocaleString()}</span>
     </div>` : ''}
     <div class="clip-section-lbl">บริการเฉพาะแพ็กเกจนี้</div>
@@ -2152,13 +2228,21 @@ function suggestFee(){
   const dailyInput = document.getElementById('f_dailyRate');
   const depositInput = document.getElementById('f_deposit');
   if(state.pkg && state.format){
-    const [lo, hi] = PACKAGES[state.pkg].price[state.format];
-    hint.textContent = `ช่วงราคาแนะนำสำหรับแพ็กเกจนี้: ฿${lo.toLocaleString()}–${hi.toLocaleString()} / เดือน`;
-    if(!feeInput.value) feeInput.value = lo;
-
+    const range = PACKAGES[state.pkg].price[state.format];
     const daily = PACKAGES[state.pkg].daily[state.format];
-    dailyHint.textContent = `อัตรารายวันแนะนำ: ฿${daily.toLocaleString()}/วัน (ใช้คำนวณกรณีอยู่ไม่ครบเดือน, ยกเลิกบริการ, หรือแอดมิท)`;
-    if(!dailyInput.value) dailyInput.value = daily;
+    if(range){
+      const [lo, hi] = range;
+      hint.textContent = `ช่วงราคาแนะนำสำหรับแพ็กเกจนี้: ฿${lo.toLocaleString()}–${hi.toLocaleString()} / เดือน`;
+      if(!feeInput.value) feeInput.value = lo;
+    } else {
+      hint.textContent = 'รูปแบบบริการนี้ยังไม่มีช่วงราคาแนะนำในระบบ กรุณากรอกค่าบริการเอง';
+    }
+    if(daily){
+      dailyHint.textContent = `อัตรารายวันแนะนำ: ฿${daily.toLocaleString()}/วัน (ใช้คำนวณกรณีอยู่ไม่ครบเดือน, ยกเลิกบริการ, หรือแอดมิท)`;
+      if(!dailyInput.value) dailyInput.value = daily;
+    } else {
+      dailyHint.textContent = 'รูปแบบบริการนี้ยังไม่มีอัตรารายวันแนะนำในระบบ กรุณากรอกเอง (ใช้คำนวณกรณีอยู่ไม่ครบเดือน, ยกเลิกบริการ, หรือแอดมิท)';
+    }
 
     const suggestedDeposit = state.format === '24' ? 10000 : 5000;
     if(!depositInput.dataset.userEdited) depositInput.value = suggestedDeposit;
@@ -2195,10 +2279,10 @@ function resetForm(){
   document.querySelectorAll('#formatRow input, #equipWrap input').forEach(el=>el.checked=false);
   state = {
     pkg:null, format:null, equipment:new Set(),
-    serviceType:'package', procZone:null, procedures:new Set(), customProcedures:[],
-    addonZone:null, addonProcedures:new Set(), customAddonProcedures:[],
+    serviceType:'package', procZone:null, procedures:new Set(), customProcedures:[], procManualPrices:{},
+    addonZone:null, addonProcedures:new Set(), customAddonProcedures:[], addonManualPrices:{},
     courseProgram:null, courseOption:null, coursePurchaseType:'bundle', coursePatientType:'OPD', courseTherapistType:'pt',
-    billingEntity:'CMCC Home Care'
+    billingEntity:'CMCC Home Care by CMNH'
   };
   updateBillingEntity();
   editingId = null;
@@ -2216,6 +2300,8 @@ function resetForm(){
   document.getElementById('addonChecklist').innerHTML = '';
   document.getElementById('procCustomList').innerHTML = '';
   document.getElementById('addonCustomList').innerHTML = '';
+  buildManualPriceChecklist(document.getElementById('procManualChecklist'), state.procManualPrices, refreshProcSubtotal);
+  buildManualPriceChecklist(document.getElementById('addonManualChecklist'), state.addonManualPrices, refreshAddonSubtotal);
   document.getElementById('customProcForm').style.display = 'none';
   document.getElementById('customAddonProcForm').style.display = 'none';
   document.getElementById('procSubtotal').textContent = 'เลือกโซนและหัตถการเพื่อดูยอดรวม';
@@ -2352,8 +2438,8 @@ function collectDraftSnapshot(){
     state: {
       pkg: state.pkg, format: state.format, equipment: Array.from(state.equipment),
       serviceType: state.serviceType,
-      procZone: state.procZone, procedures: Array.from(state.procedures), customProcedures: state.customProcedures,
-      addonZone: state.addonZone, addonProcedures: Array.from(state.addonProcedures), customAddonProcedures: state.customAddonProcedures,
+      procZone: state.procZone, procedures: Array.from(state.procedures), customProcedures: state.customProcedures, procManualPrices: state.procManualPrices,
+      addonZone: state.addonZone, addonProcedures: Array.from(state.addonProcedures), customAddonProcedures: state.customAddonProcedures, addonManualPrices: state.addonManualPrices,
       courseProgram: state.courseProgram, courseOption: state.courseOption,
       coursePurchaseType: state.coursePurchaseType, coursePatientType: state.coursePatientType,
       courseTherapistType: state.courseTherapistType
@@ -2410,10 +2496,12 @@ function applyDraftState(ds){
     }
     (ds.addonProcedures||[]).forEach(k=> state.addonProcedures.add(k));
     state.customAddonProcedures = ds.customAddonProcedures || [];
+    state.addonManualPrices = ds.addonManualPrices || {};
     buildProcChecklist(document.getElementById('addonChecklist'), ()=>state.addonZone, state.addonProcedures, refreshAddonSubtotal);
+    buildManualPriceChecklist(document.getElementById('addonManualChecklist'), state.addonManualPrices, refreshAddonSubtotal);
     renderCustomProcList('addonCustomList', ()=>state.customAddonProcedures, refreshAddonSubtotal);
     refreshAddonSubtotal();
-    if(ds.addonZone || (ds.addonProcedures||[]).length || (ds.customAddonProcedures||[]).length) toggleAddonSection(true);
+    if(ds.addonZone || (ds.addonProcedures||[]).length || (ds.customAddonProcedures||[]).length || Object.keys(ds.addonManualPrices||{}).length) toggleAddonSection(true);
   } else if(ds.serviceType === 'procedure'){
     if(ds.procZone){
       const chip = document.querySelector(`#procZoneRow .radio-chip[data-val="${ds.procZone}"]`);
@@ -2421,7 +2509,9 @@ function applyDraftState(ds){
     }
     (ds.procedures||[]).forEach(k=> state.procedures.add(k));
     state.customProcedures = ds.customProcedures || [];
+    state.procManualPrices = ds.procManualPrices || {};
     buildProcChecklist(document.getElementById('procChecklist'), ()=>state.procZone, state.procedures, refreshProcSubtotal);
+    buildManualPriceChecklist(document.getElementById('procManualChecklist'), state.procManualPrices, refreshProcSubtotal);
     renderCustomProcList('procCustomList', ()=>state.customProcedures, refreshProcSubtotal);
     refreshProcSubtotal();
   } else if(ds.serviceType === 'course'){
@@ -2504,10 +2594,15 @@ function genRequestId(){
   return 'req-' + Date.now() + '-' + Math.random().toString(36).slice(2);
 }
 
-function procListText(zone, set, customArr){
+function procListText(zone, set, customArr, manualPrices){
   const parts = [];
   if(zone && set && set.size){
     Array.from(set).forEach(k=> parts.push(`${PROCEDURES[k].name} (${ZONES[zone].label.split(' ·')[0]}) ฿${PROCEDURES[k].price[zone].toLocaleString()}`));
+  }
+  if(manualPrices){
+    Object.entries(manualPrices).forEach(([k, price])=>{
+      if(PROCEDURES[k] && Number(price) > 0) parts.push(`${PROCEDURES[k].name} (กรอกราคาเอง) ฿${Number(price).toLocaleString()}`);
+    });
   }
   if(customArr && customArr.length){
     customArr.forEach(item=> parts.push(`${item.name} ฿${Number(item.price).toLocaleString()}`));
@@ -2515,13 +2610,27 @@ function procListText(zone, set, customArr){
   return parts.join('; ');
 }
 
+// ดึงรายการหัตถการชื่อมาตรฐานที่ "ราคากรอกเอง" กลับออกมาจากข้อความที่บันทึกไว้ (มีเครื่องหมาย "(กรอกราคาเอง)" กำกับ)
+function extractManualPriceItems(procText){
+  if(!procText) return {};
+  const result = {};
+  procText.split('; ').forEach(seg=>{
+    const m = seg.match(/^(.*?)\s*\(กรอกราคาเอง\)\s*฿([\d,]+)\s*$/);
+    if(!m) return;
+    const name = m[1].trim();
+    const key = Object.keys(PROCEDURES).find(k => PROCEDURES[k].name === name);
+    if(key) result[key] = Number(m[2].replace(/,/g, ''));
+  });
+  return result;
+}
+
 // ดึงรายการหัตถการแบบกรอกเอง (custom) กลับออกมาจากข้อความที่บันทึกไว้ใน Sheet ตอนแก้ไข/คัดลอกเคสเดิม
-// ส่วนที่ไม่ตรงกับชื่อหัตถการมาตรฐานใน PROCEDURES ถือว่าเป็นรายการกรอกเอง
+// ส่วนที่ไม่ตรงกับชื่อหัตถการมาตรฐานใน PROCEDURES และไม่มีเครื่องหมาย "(กรอกราคาเอง)" ถือว่าเป็นรายการกรอกเองแบบอิสระ
 function extractCustomProcItems(procText, matchedProcKeys){
   if(!procText) return [];
   const matchedNames = matchedProcKeys.map(k => PROCEDURES[k].name);
   return procText.split('; ')
-    .filter(seg => seg && !matchedNames.some(n => seg.includes(n)))
+    .filter(seg => seg && !seg.includes('(กรอกราคาเอง)') && !matchedNames.some(n => seg.includes(n)))
     .map(seg => {
       const m = seg.match(/^(.*?)\s*฿([\d,]+)\s*$/);
       if(!m) return null;
@@ -2540,8 +2649,11 @@ async function saveRecord(){
     if(!state.format){ return markInvalid('formatRow', 'กรุณาเลือกรูปแบบบริการ'); }
     if(!document.getElementById('f_monthlyFee').value){ return markInvalid('f_monthlyFee', 'กรุณาระบุค่าบริการต่อเดือน'); }
   } else if(state.serviceType === 'procedure'){
-    if(!state.procZone){ return markInvalid('procZoneRow', 'กรุณาเลือกโซนบริการ'); }
-    if(state.procedures.size === 0){ return markInvalid('procChecklist', 'กรุณาเลือกหัตถการอย่างน้อย 1 รายการ'); }
+    const hasZonedItems = state.procedures.size > 0;
+    const hasManualItems = Object.keys(state.procManualPrices).length > 0;
+    const hasCustomItems = state.customProcedures.length > 0;
+    if(hasZonedItems && !state.procZone){ return markInvalid('procZoneRow', 'กรุณาเลือกโซนบริการ'); }
+    if(!hasZonedItems && !hasManualItems && !hasCustomItems){ return markInvalid('procChecklist', 'กรุณาเลือกหัตถการอย่างน้อย 1 รายการ'); }
   } else if(state.serviceType === 'course'){
     if(!state.courseProgram){ return markInvalid('courseProgramRow', 'กรุณาเลือกประเภทโปรแกรม'); }
     const prog = COURSE_PROGRAMS[state.courseProgram];
@@ -2553,10 +2665,11 @@ async function saveRecord(){
   const isProcedure = state.serviceType === 'procedure';
   const isCourse = state.serviceType === 'course';
 
-  const procTotal = isPackage ? procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures) : (isProcedure ? procSetTotal(state.procZone, state.procedures, state.customProcedures) : 0);
+  const procTotal = isPackage ? procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices) : (isProcedure ? procSetTotal(state.procZone, state.procedures, state.customProcedures, state.procManualPrices) : 0);
   const procZoneUsed = isPackage ? state.addonZone : (isProcedure ? state.procZone : null);
   const procSetUsed = isPackage ? state.addonProcedures : (isProcedure ? state.procedures : new Set());
   const procCustomUsed = isPackage ? state.customAddonProcedures : (isProcedure ? state.customProcedures : []);
+  const procManualUsed = isPackage ? state.addonManualPrices : (isProcedure ? state.procManualPrices : {});
 
   let courseProgramLabel = '', courseOptionLabel = '', courseSessionsTotal = '', courseSessionsUsed = '', courseTotalPrice = '';
   if(isCourse){
@@ -2619,7 +2732,7 @@ async function saveRecord(){
     billingEntity: state.billingEntity,
     serviceTypeLabel: isPackage ? 'แพ็กเกจรายเดือน' : (isProcedure ? 'บริการหัตถการครั้งเดียว' : 'คอร์ส/โปรแกรมบริการ'),
     zoneLabel: procZoneUsed ? ZONES[procZoneUsed].label.split(' ·')[0] : '',
-    procedureListText: procListText(procZoneUsed, procSetUsed, procCustomUsed),
+    procedureListText: procListText(procZoneUsed, procSetUsed, procCustomUsed, procManualUsed),
     procedureTotal: procTotal || '',
     courseProgramLabel, courseOptionLabel, courseSessionsTotal, courseSessionsUsed, courseTotalPrice,
     clientRequestId: genRequestId()
@@ -2714,7 +2827,7 @@ document.getElementById('btnCopyInvoice').addEventListener('click', async ()=>{
   }
 });
 document.getElementById('btnEmailInvoice').addEventListener('click', ()=>{
-  const subject = encodeURIComponent('ใบสรุปแผนการดูแลและค่าบริการ — CMCC HOME CARE');
+  const subject = encodeURIComponent('ใบสรุปแผนการดูแลและค่าบริการ — CMCC HOME CARE by CMNH');
   const body = encodeURIComponent(lastInvoiceText);
   window.location.href = `mailto:?subject=${subject}&body=${body}`;
 });
@@ -2755,7 +2868,7 @@ function openInvoice(payload, refId){
     const isSingleVisit = total === 1 && payload.courseSessionsUsed === '';
 
     lastInvoiceText = [
-      `${payload.billingEntity || 'CMCC Home Care'} — ใบสรุปคอร์ส/โปรแกรมบริการ`,
+      `${payload.billingEntity || 'CMCC Home Care by CMNH'} — ใบสรุปคอร์ส/โปรแกรมบริการ`,
       payload.billingEntity === 'คลินิกหมอต้น' ? 'คลินิกเวชกรรมเฉพาะทางระบบประสาทและสมอง' : '',
       `เลขที่เอกสาร: ${docNo}`,
       `วันที่ออกเอกสาร: ${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}`,
@@ -2774,7 +2887,7 @@ function openInvoice(payload, refId){
       '',
       payload.billingEntity === 'คลินิกหมอต้น' ? 'ลงชื่อ ...................................... (นายแพทย์ณัฐวรรธ วิฑูรย์ — แพทย์ผู้รับผิดชอบ)' : '',
       '',
-      `ขอบคุณที่ไว้วางใจให้ ${payload.billingEntity || 'CMCC Home Care'} ดูแลคนที่คุณรัก`
+      `ขอบคุณที่ไว้วางใจให้ ${payload.billingEntity || 'CMCC Home Care by CMNH'} ดูแลคนที่คุณรัก`
     ].filter(Boolean).join('\n');
 
     document.getElementById('invoiceBody').innerHTML = `
@@ -2785,7 +2898,7 @@ function openInvoice(payload, refId){
               <div class="inv-brand">
                 <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
                 <div>
-                  <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care')}</div>
+                  <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care by CMNH')}</div>
                   ${clinicFullNameLine(payload)}
                   <div class="inv-brand-sub">ใบสรุปคอร์ส/โปรแกรมบริการ</div>
                 </div>
@@ -2825,7 +2938,7 @@ function openInvoice(payload, refId){
               </tbody>
             </table>
             ${signatureBlockHtml(payload)}
-            <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care')} ดูแลคนที่คุณรัก</div>
+            <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care by CMNH')} ดูแลคนที่คุณรัก</div>
           </td></tr>
         </tbody>
       </table>
@@ -2852,7 +2965,7 @@ function openInvoice(payload, refId){
   const procItems = payload.procedureListText ? payload.procedureListText.split('; ') : [];
 
   lastInvoiceText = [
-    `${payload.billingEntity || 'CMCC Home Care'} — ใบสรุปแผนการดูแลและค่าบริการ`,
+    `${payload.billingEntity || 'CMCC Home Care by CMNH'} — ใบสรุปแผนการดูแลและค่าบริการ`,
     payload.billingEntity === 'คลินิกหมอต้น' ? 'คลินิกเวชกรรมเฉพาะทางระบบประสาทและสมอง' : '',
     `เลขที่เอกสาร: ${docNo}`,
     `วันที่ออกเอกสาร: ${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}`,
@@ -2870,7 +2983,7 @@ function openInvoice(payload, refId){
     isPackage && assessmentFee ? `ค่าประเมินหน้างาน: ฿${assessmentFee.toLocaleString()}` : '',
     isPackage && holidayAmount ? `ค่าบริการวันหยุด/นักขัตฤกษ์: ${holidayBreakdown}` : '',
     isPackage && depositDue ? `เงินประกันสัญญา (ชำระครั้งแรก): ฿${deposit.toLocaleString()}` : (isPackage ? `เงินประกันสัญญา: ${payload.depositStatus||'—'}` : ''),
-    procTotal ? `${isPackage ? 'บริการหัตถการเสริม' : 'ค่าบริการหัตถการ'} (${payload.zoneLabel||''}): ฿${procTotal.toLocaleString()}${procItems.length ? ' — ' + procItems.join(', ') : ''}` : '',
+    procTotal ? `${isPackage ? 'บริการหัตถการเสริม' : 'ค่าบริการหัตถการ'}${payload.zoneLabel ? ' ('+payload.zoneLabel+')' : ''}: ฿${procTotal.toLocaleString()}${procItems.length ? ' — ' + procItems.join(', ') : ''}` : '',
     `ยอดชำระในการเริ่มบริการครั้งนี้: ฿${total.toLocaleString()}`,
     '',
     'เงื่อนไขการชำระเงิน: ชำระค่าบริการล่วงหน้าก่อนเริ่มบริการทุกครั้ง / เงินประกันคืนเมื่อสิ้นสุดสัญญาหากไม่มีค่าใช้จ่ายค้างชำระ',
@@ -2881,7 +2994,7 @@ function openInvoice(payload, refId){
     '',
     payload.billingEntity === 'คลินิกหมอต้น' ? 'ลงชื่อ ...................................... (นายแพทย์ณัฐวรรธ วิฑูรย์ — แพทย์ผู้รับผิดชอบ)' : '',
     '',
-    `ขอบคุณที่ไว้วางใจให้ ${payload.billingEntity || 'CMCC Home Care'} ดูแลคนที่คุณรัก`
+    `ขอบคุณที่ไว้วางใจให้ ${payload.billingEntity || 'CMCC Home Care by CMNH'} ดูแลคนที่คุณรัก`
   ].filter(Boolean).join('\n');
 
   document.getElementById('invoiceBody').innerHTML = `
@@ -2892,7 +3005,7 @@ function openInvoice(payload, refId){
             <div class="inv-brand">
               <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
               <div>
-                <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care')}</div>
+                <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care by CMNH')}</div>
                 ${clinicFullNameLine(payload)}
                 <div class="inv-brand-sub">ใบสรุปแผนการดูแลและค่าบริการ</div>
               </div>
@@ -2948,7 +3061,7 @@ function openInvoice(payload, refId){
         ${assessmentFee ? `<tr><td>ค่าประเมินหน้างาน</td><td class="amt">฿${assessmentFee.toLocaleString()}</td></tr>` : ''}
         ${depositDue ? `<tr><td>เงินประกันสัญญา (ชำระครั้งแรก)</td><td class="amt">฿${deposit.toLocaleString()}</td></tr>` : `<tr><td>เงินประกันสัญญา</td><td class="amt" style="color:var(--ink-faint);">${escapeHtml(payload.depositStatus||'—')}</td></tr>`}
         ` : ''}
-        ${procTotal ? `<tr><td>${isPackage ? 'บริการหัตถการเสริม' : 'ค่าบริการหัตถการ'} (${escapeHtml(payload.zoneLabel||'')})${procItems.length ? '<br><span style="font-size:11px; color:var(--ink-faint);">'+escapeHtml(procItems.join(', '))+'</span>' : ''}</td><td class="amt">฿${procTotal.toLocaleString()}</td></tr>` : ''}
+        ${procTotal ? `<tr><td>${isPackage ? 'บริการหัตถการเสริม' : 'ค่าบริการหัตถการ'}${payload.zoneLabel ? ' ('+escapeHtml(payload.zoneLabel)+')' : ''}${procItems.length ? '<br><span style="font-size:11px; color:var(--ink-faint);">'+escapeHtml(procItems.join(', '))+'</span>' : ''}</td><td class="amt">฿${procTotal.toLocaleString()}</td></tr>` : ''}
         <tr class="inv-total-row"><td>ยอดชำระในการเริ่มบริการครั้งนี้</td><td class="amt">฿${total.toLocaleString()}</td></tr>
       </tbody>
     </table>
@@ -2969,7 +3082,7 @@ function openInvoice(payload, refId){
     ` : ''}
 
     ${signatureBlockHtml(payload)}
-    <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care')} ดูแลคนที่คุณรัก</div>
+    <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care by CMNH')} ดูแลคนที่คุณรัก</div>
 
         </td></tr>
       </tbody>
@@ -3098,7 +3211,7 @@ function reprintInvoice(id){
     depositStatus: r['สถานะเงินประกัน'] || '',
     startDate: r['วันเริ่มบริการ'] || '',
     caregiver: r['เจ้าหน้าที่ผู้ดูแล'] || '',
-    billingEntity: r['ออกเอกสารในนาม'] || ((r['ประเภทเคส'] || '') === 'แพ็กเกจรายเดือน' ? 'CMCC Home Care' : 'คลินิกหมอต้น'),
+    billingEntity: (r['ออกเอกสารในนาม'] === 'CMCC Home Care' ? 'CMCC Home Care by CMNH' : r['ออกเอกสารในนาม']) || ((r['ประเภทเคส'] || '') === 'แพ็กเกจรายเดือน' ? 'CMCC Home Care by CMNH' : 'คลินิกหมอต้น'),
     serviceTypeLabel: r['ประเภทเคส'] || '',
     zoneLabel: r['โซนบริการ'] || '',
     procedureListText: r['รายการหัตถการ'] || '',
@@ -3182,8 +3295,11 @@ function fillFormFromRecord(r){
   const zoneMatch = String(r['โซนบริการ'] || '').match(/([A-C])/);
   const zoneCode = zoneMatch ? zoneMatch[1] : null;
   const procText = String(r['รายการหัตถการ'] || '');
-  const matchedProcKeys = Object.keys(PROCEDURES).filter(k => procText.includes(PROCEDURES[k].name));
-  const matchedCustomItems = extractCustomProcItems(procText, matchedProcKeys);
+  const procSegments = procText.split('; ').filter(Boolean);
+  const nonManualSegments = procSegments.filter(seg => !seg.includes('(กรอกราคาเอง)')).join('; ');
+  const matchedProcKeys = Object.keys(PROCEDURES).filter(k => nonManualSegments.includes(PROCEDURES[k].name));
+  const matchedCustomItems = extractCustomProcItems(nonManualSegments, matchedProcKeys);
+  const matchedManualPrices = extractManualPriceItems(procText);
 
   if(r['ประเภทเคส'] === 'บริการหัตถการครั้งเดียว'){
     state.serviceType = 'procedure';
@@ -3201,7 +3317,9 @@ function fillFormFromRecord(r){
     }
     matchedProcKeys.forEach(k => state.procedures.add(k));
     state.customProcedures = matchedCustomItems;
+    state.procManualPrices = matchedManualPrices;
     buildProcChecklist(document.getElementById('procChecklist'), ()=>state.procZone, state.procedures, refreshProcSubtotal);
+    buildManualPriceChecklist(document.getElementById('procManualChecklist'), state.procManualPrices, refreshProcSubtotal);
     renderCustomProcList('procCustomList', ()=>state.customProcedures, refreshProcSubtotal);
     refreshProcSubtotal();
   } else if(r['ประเภทเคส'] === 'คอร์ส/โปรแกรมบริการ'){
@@ -3257,14 +3375,16 @@ function fillFormFromRecord(r){
         updateCourseSubtotal();
       }
     }
-  } else if(matchedProcKeys.length || matchedCustomItems.length){
+  } else if(matchedProcKeys.length || matchedCustomItems.length || Object.keys(matchedManualPrices).length){
     if(zoneCode){
       state.addonZone = zoneCode;
       document.querySelector(`#addonZoneRow .radio-chip[data-val="${zoneCode}"]`)?.classList.add('checked');
     }
     matchedProcKeys.forEach(k => state.addonProcedures.add(k));
     state.customAddonProcedures = matchedCustomItems;
+    state.addonManualPrices = matchedManualPrices;
     buildProcChecklist(document.getElementById('addonChecklist'), ()=>state.addonZone, state.addonProcedures, refreshAddonSubtotal);
+    buildManualPriceChecklist(document.getElementById('addonManualChecklist'), state.addonManualPrices, refreshAddonSubtotal);
     renderCustomProcList('addonCustomList', ()=>state.customAddonProcedures, refreshAddonSubtotal);
     refreshAddonSubtotal();
     toggleAddonSection(true);
@@ -3592,7 +3712,7 @@ document.getElementById('btnExportPDF').addEventListener('click', async ()=>{
   if(!rows.length){ showToast('ไม่มีข้อมูลให้ export', true); return; }
   const printArea = document.getElementById('printArea');
   printArea.innerHTML = `
-    <h2 style="font-family:'Taviraj',sans-serif; color:#3D2467;">CMCC HOME CARE — รายการทั้งหมด</h2>
+    <h2 style="font-family:'Taviraj',sans-serif; color:#3D2467;">CMCC HOME CARE by CMNH — รายการทั้งหมด</h2>
     <div style="font-size:12px; color:#5B6A65; margin-bottom:14px;">พิมพ์เมื่อ ${new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})} · ${rows.length} รายการ</div>
     <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
       <thead><tr style="background:#E8ECE7;">
