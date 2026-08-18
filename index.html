@@ -1744,6 +1744,9 @@ document.querySelectorAll('#serviceTypeRow .radio-chip').forEach(chip=>{
       updateDailyDaysModeUI();
       refreshDailyPkgSubtotal();
     }
+    if(isPkgLike){
+      suggestFee();
+    }
     // restart the fade-in animation on the panel that just became visible
     const activePanel = isPkgLike ? document.getElementById('packagePanel') : document.getElementById(state.serviceType + 'Panel');
     if(activePanel){
@@ -2833,13 +2836,14 @@ async function saveRecord(){
   } else if(state.serviceType === 'dailyPackage'){
     if(!state.pkg){ return markInvalid('pkgGrid', 'กรุณาเลือกแพ็กเกจ'); }
     if(!state.format){ return markInvalid('formatRow', 'กรุณาเลือกรูปแบบบริการ'); }
-    if(!document.getElementById('f_dailyPkgRate').value){ return markInvalid('f_dailyPkgRate', 'กรุณาระบุอัตรารายวัน'); }
+    if(!(Number(document.getElementById('f_dailyPkgRate').value) > 0)){ return markInvalid('f_dailyPkgRate', 'กรุณาระบุอัตรารายวัน (ต้องมากกว่า 0)'); }
     if(state.dailyPkgDaysMode === 'range'){
       if(!document.getElementById('f_dailyPkgRangeStart').value || !document.getElementById('f_dailyPkgRangeEnd').value){
         return markInvalid('dailyDaysRangeField', 'กรุณาเลือกวันที่เริ่ม-สิ้นสุด');
       }
-    } else if(!document.getElementById('f_dailyPkgDaysCount').value){
-      return markInvalid('f_dailyPkgDaysCount', 'กรุณาระบุจำนวนวัน');
+      if(!(getDailyPkgDaysCount() > 0)){ return markInvalid('dailyDaysRangeField', 'ช่วงวันที่เลือกไม่ถูกต้อง'); }
+    } else if(!(Number(document.getElementById('f_dailyPkgDaysCount').value) > 0)){
+      return markInvalid('f_dailyPkgDaysCount', 'กรุณาระบุจำนวนวัน (ต้องมากกว่า 0)');
     }
   }
 
