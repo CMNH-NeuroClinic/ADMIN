@@ -227,6 +227,7 @@
   .quick-card.qc-c .qc-icon{background:rgba(58,47,13,.15);}
   .quick-card.qc-d{background:var(--surface); border:none; color:var(--ink);}
   .quick-card.qc-d .qc-icon{background:var(--paper-dim);}
+  .quick-card.qc-e{background:linear-gradient(135deg, #2E8A6E, #4FB88E); color:#fff;}
 
   .jump-nav-home{
     flex-shrink:0; display:flex; align-items:center; justify-content:center;
@@ -870,6 +871,11 @@
           <span class="qc-text"><span class="qc-title">คอร์ส/โปรแกรม</span>
             <span class="qc-sub">TMS-PMS · กายภาพ · ผู้สูงวัย</span></span>
         </button>
+        <button class="quick-card qc-e" data-start="dailyPackage">
+          <span class="qc-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="#fff" stroke-width="1.7"/><path d="M3 9h18 M8 2v4 M16 2v4" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+          <span class="qc-text"><span class="qc-title">แพ็กเกจรายวัน</span>
+            <span class="qc-sub">เหมาจ่ายเป็นวัน ยืดหยุ่นตามจำนวนวัน</span></span>
+        </button>
         <button class="quick-card qc-d" data-goto="records">
           <span class="qc-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="var(--teal-700)" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           <span class="qc-text"><span class="qc-title">รายการทั้งหมด</span>
@@ -963,16 +969,22 @@
                 <span class="case-tab-icon">🎟️</span>
                 <span class="case-tab-label">คอร์ส/โปรแกรม<br>บริการ</span>
               </label>
+              <label class="radio-chip" data-val="dailyPackage">
+                <input type="radio" name="serviceType" value="dailyPackage">
+                <span class="dot"></span>
+                <span class="case-tab-icon">📆</span>
+                <span class="case-tab-label">แพ็กเกจ<br>รายวัน</span>
+              </label>
             </div>
           </div>
 
          <div id="packagePanel" class="case-panel">
-            <div class="case-panel-label">📅 แพ็กเกจรายเดือน</div>
+            <div class="case-panel-label" id="packagePanelLabel">📅 แพ็กเกจรายเดือน</div>
             <label style="display:block; margin-bottom:10px;">เลือกกลุ่มที่ตรงกับอาการผู้รับบริการ</label>
             <div class="pkg-grid" id="pkgGrid"></div>
             
             <!-- ส่วนที่เพิ่มใหม่: วันหยุดนักขัตฤกษ์ -->
-            <div class="field" style="margin-top:16px;">
+            <div class="field monthly-only" style="margin-top:16px;">
               <label class="chip-check" style="display:inline-flex;" id="holidayChargeWrap">
                 <input type="checkbox" id="f_holidayCharge"><span class="box"></span>
                 คิดค่าบริการวันหยุดนักขัตฤกษ์/วันหยุดปกติเพิ่ม
@@ -990,6 +1002,46 @@
             </div>
             <div class="field" id="holidayTotalRow" style="display:none; margin-top:2px;">
               <span class="helptext">ยอดรวมค่าบริการวันหยุด: <b id="holidayTotalDisplay" style="color:var(--teal-700);">฿0</b></span>
+            </div>
+
+            <!-- ส่วนที่เพิ่มใหม่: แพ็กเกจรายวัน — จำนวนวันและอัตรารายวัน -->
+            <div class="field dailypkg-only" style="display:none; margin-top:16px;">
+              <label>วิธีนับจำนวนวัน<span class="req">*</span></label>
+              <div class="radio-row" id="dailyDaysModeRow">
+                <label class="radio-chip checked" data-val="direct">
+                  <input type="radio" name="dailyDaysMode" value="direct" checked>
+                  <span class="dot"></span> กรอกจำนวนวันตรงๆ
+                </label>
+                <label class="radio-chip" data-val="range">
+                  <input type="radio" name="dailyDaysMode" value="range">
+                  <span class="dot"></span> เลือกช่วงวันที่เริ่ม–สิ้นสุด
+                </label>
+              </div>
+            </div>
+            <div class="field dailypkg-only" id="dailyDaysDirectField" style="display:none; margin-top:8px;">
+              <label>จำนวนวัน<span class="req">*</span></label>
+              <input type="number" id="f_dailyPkgDaysCount" value="1" min="1" step="1">
+            </div>
+            <div class="field-grid cols-2 dailypkg-only" id="dailyDaysRangeField" style="display:none; margin-top:8px;">
+              <div class="field">
+                <label>วันที่เริ่ม<span class="req">*</span></label>
+                <input type="date" id="f_dailyPkgRangeStart">
+              </div>
+              <div class="field">
+                <label>วันที่สิ้นสุด<span class="req">*</span></label>
+                <input type="date" id="f_dailyPkgRangeEnd">
+              </div>
+              <div class="field" style="grid-column:1/-1;">
+                <span class="helptext">จำนวนวันที่นับได้: <b id="dailyPkgRangeDaysDisplay">—</b> (นับรวมวันเริ่มและวันสิ้นสุด)</span>
+              </div>
+            </div>
+            <div class="field dailypkg-only" id="dailyPkgRateField" style="display:none; margin-top:8px;">
+              <label>อัตรารายวัน (บาท)<span class="req">*</span></label>
+              <input type="number" id="f_dailyPkgRate" placeholder="เช่น 800">
+              <span class="helptext" id="dailyPkgRateHint">เลือกแพ็กเกจและรูปแบบบริการเพื่อดูอัตราแนะนำ</span>
+            </div>
+            <div class="field dailypkg-only" id="dailyPkgTotalRow" style="display:none; margin-top:2px;">
+              <span class="helptext">ยอดรวมแพ็กเกจรายวัน: <b id="dailyPkgTotalDisplay" style="color:var(--teal-700);">฿0</b></span>
             </div>
           </div>
 
@@ -1133,7 +1185,7 @@
               <label>วันเริ่มบริการ</label>
               <input type="date" id="f_startDate">
             </div>
-            <div class="field package-only">
+            <div class="field monthly-only">
               <label>วันครบกำหนดสัญญา (ถ้ามี)</label>
               <input type="date" id="f_contractEndDate">
               <span class="helptext">ใช้แจ้งเตือนในแดชบอร์ดเมื่อใกล้ครบกำหนด</span>
@@ -1155,22 +1207,22 @@
                 <option>ยกเลิก</option>
               </select>
             </div>
-            <div class="field package-only">
+            <div class="field monthly-only">
               <label>ค่าบริการต่อเดือน (บาท)<span class="req">*</span></label>
               <input type="number" id="f_monthlyFee" placeholder="เช่น 18000">
               <span class="helptext" id="feeHint">เลือกแพ็กเกจและรูปแบบบริการเพื่อดูช่วงราคาแนะนำ</span>
             </div>
-            <div class="field package-only">
+            <div class="field monthly-only">
               <label>อัตรารายวัน (บาท/วัน)</label>
               <input type="number" id="f_dailyRate" placeholder="เช่น 800">
               <span class="helptext" id="dailyRateHint">ใช้คำนวณกรณีอยู่ไม่ครบเดือน, ยกเลิกบริการ, หรือแอดมิท</span>
             </div>
-            <div class="field package-only">
+            <div class="field monthly-only">
               <label>เงินประกันสัญญา (บาท)</label>
               <input type="number" id="f_deposit" value="5000">
               <span class="helptext">แนะนำ 5,000 บาทสำหรับ 12 ชม. · 10,000 บาทสำหรับ 24 ชม.</span>
             </div>
-            <div class="field package-only">
+            <div class="field monthly-only">
               <label>สถานะเงินประกัน</label>
               <select id="f_depositStatus">
                 <option>ยังไม่ชำระ</option>
@@ -1179,7 +1231,7 @@
               </select>
             </div>
           </div>
-          <div class="field package-only" style="margin-top:14px;">
+          <div class="field monthly-only" style="margin-top:14px;">
             <label class="chip-check" style="display:inline-flex;" id="assessmentFeeWrap">
               <input type="checkbox" id="f_assessmentFee"><span class="box"></span>
               เรียกเก็บค่าประเมินหน้างาน (1,000 บาท)
@@ -1521,6 +1573,7 @@ let state = {
   procZone: null, procedures: new Set(), customProcedures: [], procManualPrices: {},
   addonZone: null, addonProcedures: new Set(), customAddonProcedures: [], addonManualPrices: {},
   courseProgram: null, courseOption: null, coursePurchaseType: 'bundle', coursePatientType: 'OPD', courseTherapistType: 'pt',
+  dailyPkgDaysMode: 'direct',
   billingEntity: 'CMCC Home Care by CMNH'
 };
 let webhookUrl = 'https://script.google.com/macros/s/AKfycbyd2aL8atlZw2hdO7NG0yP4dBN7DDCZAVu1EdD_LouRd3lpErIX04lBufWwkgnrWcfJgA/exec';
@@ -1666,14 +1719,33 @@ document.querySelectorAll('#serviceTypeRow .radio-chip').forEach(chip=>{
     chip.classList.add('checked');
     chip.querySelector('input').checked = true;
     state.serviceType = chip.dataset.val;
-    document.getElementById('packagePanel').style.display = state.serviceType === 'package' ? '' : 'none';
+    const isPkgLike = state.serviceType === 'package' || state.serviceType === 'dailyPackage';
+    document.getElementById('packagePanel').style.display = isPkgLike ? '' : 'none';
     document.getElementById('procedurePanel').style.display = state.serviceType === 'procedure' ? '' : 'none';
     document.getElementById('coursePanel').style.display = state.serviceType === 'course' ? '' : 'none';
     document.querySelectorAll('.package-only').forEach(el=>{
+      el.style.display = isPkgLike ? '' : 'none';
+    });
+    document.querySelectorAll('.monthly-only').forEach(el=>{
       el.style.display = state.serviceType === 'package' ? '' : 'none';
     });
+    document.querySelectorAll('.dailypkg-only').forEach(el=>{
+      el.style.display = state.serviceType === 'dailyPackage' ? '' : 'none';
+    });
+    document.getElementById('packagePanelLabel').textContent = state.serviceType === 'dailyPackage' ? '📆 แพ็กเกจรายวัน' : '📅 แพ็กเกจรายเดือน';
+    if(state.serviceType !== 'package'){
+      // ปิดวันหยุดนักขัตฤกษ์เมื่อไม่ใช่แพ็กเกจรายเดือน (ฟิลด์นี้ผูกกับ checkbox ไม่ใช่ .monthly-only)
+      document.getElementById('f_holidayCharge').checked = false;
+      document.getElementById('holidayChargeWrap').classList.remove('checked');
+      document.getElementById('holidayAmountField').style.display = 'none';
+      document.getElementById('holidayTotalRow').style.display = 'none';
+    }
+    if(state.serviceType === 'dailyPackage'){
+      updateDailyDaysModeUI();
+      refreshDailyPkgSubtotal();
+    }
     // restart the fade-in animation on the panel that just became visible
-    const activePanel = document.getElementById(state.serviceType + 'Panel');
+    const activePanel = isPkgLike ? document.getElementById('packagePanel') : document.getElementById(state.serviceType + 'Panel');
     if(activePanel){
       activePanel.classList.remove('case-panel');
       void activePanel.offsetWidth;
@@ -1686,7 +1758,7 @@ document.querySelectorAll('#serviceTypeRow .radio-chip').forEach(chip=>{
 
 /* ============ BILLING ENTITY (auto by service type — not admin-selectable) ============ */
 function updateBillingEntity(){
-  state.billingEntity = state.serviceType === 'package' ? 'CMCC Home Care by CMNH' : 'คลินิกหมอต้น';
+  state.billingEntity = (state.serviceType === 'package' || state.serviceType === 'dailyPackage') ? 'CMCC Home Care by CMNH' : 'คลินิกหมอต้น';
   document.getElementById('billingEntityBadge').textContent = `ออกเอกสารในนาม: ${state.billingEntity}`;
 }
 
@@ -1716,6 +1788,53 @@ document.getElementById('f_holidayCharge').addEventListener('change', e=>{
 });
 document.getElementById('f_holidayRate').addEventListener('input', ()=>{ refreshHolidayTotal(); updateSummary(); });
 document.getElementById('f_holidayDays').addEventListener('input', ()=>{ refreshHolidayTotal(); updateSummary(); });
+
+/* ============ DAILY PACKAGE (แพ็กเกจรายวัน — จำนวนวัน × อัตรารายวัน) ============ */
+document.querySelectorAll('#dailyDaysModeRow .radio-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('#dailyDaysModeRow .radio-chip').forEach(c=>c.classList.remove('checked'));
+    chip.classList.add('checked');
+    chip.querySelector('input').checked = true;
+    state.dailyPkgDaysMode = chip.dataset.val;
+    updateDailyDaysModeUI();
+    refreshDailyPkgSubtotal();
+  });
+});
+function updateDailyDaysModeUI(){
+  const mode = state.dailyPkgDaysMode || 'direct';
+  document.getElementById('dailyDaysDirectField').style.display = mode === 'direct' ? '' : 'none';
+  document.getElementById('dailyDaysRangeField').style.display = mode === 'range' ? '' : 'none';
+}
+function getDailyPkgDaysCount(){
+  const mode = state.dailyPkgDaysMode || 'direct';
+  if(mode === 'range'){
+    const s = document.getElementById('f_dailyPkgRangeStart').value;
+    const e = document.getElementById('f_dailyPkgRangeEnd').value;
+    if(!s || !e) return 0;
+    const d1 = new Date(s + 'T00:00:00');
+    const d2 = new Date(e + 'T00:00:00');
+    const diff = Math.round((d2 - d1) / 86400000) + 1; // นับรวมวันเริ่มและวันสิ้นสุด
+    return diff > 0 ? diff : 0;
+  }
+  return Number(document.getElementById('f_dailyPkgDaysCount').value) || 0;
+}
+function getDailyPkgTotal(){
+  const rate = Number(document.getElementById('f_dailyPkgRate').value) || 0;
+  const days = getDailyPkgDaysCount();
+  return rate * days;
+}
+function refreshDailyPkgSubtotal(){
+  const days = getDailyPkgDaysCount();
+  document.getElementById('dailyPkgRangeDaysDisplay').textContent = days ? days + ' วัน' : '—';
+  const total = getDailyPkgTotal();
+  document.getElementById('dailyPkgTotalRow').style.display = state.serviceType === 'dailyPackage' ? '' : 'none';
+  document.getElementById('dailyPkgTotalDisplay').textContent = '฿' + total.toLocaleString();
+}
+document.getElementById('f_dailyPkgDaysCount').addEventListener('input', ()=>{ refreshDailyPkgSubtotal(); updateSummary(); });
+document.getElementById('f_dailyPkgRangeStart').addEventListener('input', ()=>{ refreshDailyPkgSubtotal(); updateSummary(); });
+document.getElementById('f_dailyPkgRangeEnd').addEventListener('input', ()=>{ refreshDailyPkgSubtotal(); updateSummary(); });
+document.getElementById('f_dailyPkgRate').addEventListener('input', ()=>{ refreshDailyPkgSubtotal(); updateSummary(); });
+
 /* ============ ZONE PICKERS (reusable for primary procedure + addon) ============ */
 function buildZoneRow(container, onSelect){
   container.innerHTML = '';
@@ -2083,6 +2202,9 @@ function updateMobileTotal(){
       const opt = prog.options[state.courseOption];
       total = isSingle ? opt.singleSession : courseOptionPrice(state.courseProgram, state.courseOption, state.coursePatientType);
     }
+  } else if(state.serviceType === 'dailyPackage'){
+    const addonTotal = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices);
+    total = getDailyPkgTotal() + addonTotal;
   }
   el.textContent = 'ยอดรวม ฿' + total.toLocaleString();
 }
@@ -2191,6 +2313,36 @@ function updateSummary(){
   }
   const p = PACKAGES[state.pkg];
   const fmt = state.format;
+
+  if(state.serviceType === 'dailyPackage'){
+    const days = getDailyPkgDaysCount();
+    const rate = Number(document.getElementById('f_dailyPkgRate').value) || 0;
+    const total = rate * days;
+    const addonTotal = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices);
+    body.innerHTML = `
+      <div class="clip-header">
+        <div class="clip-pkgname">${p.name}</div>
+        <div class="clip-pkgtag">${p.tag} · แพ็กเกจรายวัน</div>
+      </div>
+      <div class="clip-row"><span>รูปแบบบริการ</span><b>${fmt ? (fmt+' ชั่วโมง') : '— ยังไม่เลือก —'}</b></div>
+      <div class="clip-row"><span>อัตรารายวัน</span><b>${rate ? '฿'+rate.toLocaleString() : '— ยังไม่กรอก —'}</b></div>
+      <div class="clip-row"><span>จำนวนวัน</span><b>${days ? days+' วัน' : '— ยังไม่ระบุ —'}</b></div>
+      <div class="clip-fee">
+        <span class="lbl">ยอดรวมแพ็กเกจรายวัน</span>
+        <span class="val">฿${total.toLocaleString()}</span>
+      </div>
+      ${addonTotal ? `<div class="clip-fee" style="background:var(--amber); color:#4A3212;">
+        <span class="lbl" style="color:#4A3212; opacity:.8;">+ หัตถการเสริม${state.addonZone ? ' ('+ZONES[state.addonZone].label+')' : ''}</span>
+        <span class="val">฿${addonTotal.toLocaleString()}</span>
+      </div>` : ''}
+      <div class="clip-section-lbl">บริการเฉพาะแพ็กเกจนี้</div>
+      <ul class="clip-checklist">${p.includes.map(i=>`<li>${i}</li>`).join('')}</ul>
+      <div class="clip-section-lbl">รวมอยู่ในทุกแพ็กเกจ</div>
+      <ul class="clip-checklist">${BASE_INCLUDES.slice(0,3).map(i=>`<li>${i}</li>`).join('')}</ul>
+    `;
+    return;
+  }
+
   const priceRange = fmt ? p.price[fmt] : null;
   const dailyRate = fmt ? p.daily[fmt] : null;
   const addonTotal = procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices);
@@ -2227,6 +2379,8 @@ function suggestFee(){
   const dailyHint = document.getElementById('dailyRateHint');
   const dailyInput = document.getElementById('f_dailyRate');
   const depositInput = document.getElementById('f_deposit');
+  const dailyPkgHint = document.getElementById('dailyPkgRateHint');
+  const dailyPkgInput = document.getElementById('f_dailyPkgRate');
   if(state.pkg && state.format){
     const range = PACKAGES[state.pkg].price[state.format];
     const daily = PACKAGES[state.pkg].daily[state.format];
@@ -2240,8 +2394,11 @@ function suggestFee(){
     if(daily){
       dailyHint.textContent = `อัตรารายวันแนะนำ: ฿${daily.toLocaleString()}/วัน (ใช้คำนวณกรณีอยู่ไม่ครบเดือน, ยกเลิกบริการ, หรือแอดมิท)`;
       if(!dailyInput.value) dailyInput.value = daily;
+      dailyPkgHint.textContent = `อัตรารายวันแนะนำ: ฿${daily.toLocaleString()}/วัน`;
+      if(!dailyPkgInput.value) dailyPkgInput.value = daily;
     } else {
       dailyHint.textContent = 'รูปแบบบริการนี้ยังไม่มีอัตรารายวันแนะนำในระบบ กรุณากรอกเอง (ใช้คำนวณกรณีอยู่ไม่ครบเดือน, ยกเลิกบริการ, หรือแอดมิท)';
+      dailyPkgHint.textContent = 'รูปแบบบริการนี้ยังไม่มีอัตรารายวันแนะนำในระบบ กรุณากรอกเอง';
     }
 
     const suggestedDeposit = state.format === '24' ? 10000 : 5000;
@@ -2249,7 +2406,9 @@ function suggestFee(){
   } else {
     hint.textContent = 'เลือกแพ็กเกจและรูปแบบบริการเพื่อดูช่วงราคาแนะนำ';
     dailyHint.textContent = 'ใช้คำนวณกรณีอยู่ไม่ครบเดือน, ยกเลิกบริการ, หรือแอดมิท';
+    dailyPkgHint.textContent = 'เลือกแพ็กเกจและรูปแบบบริการเพื่อดูอัตราแนะนำ';
   }
+  refreshDailyPkgSubtotal();
 }
 document.getElementById('f_deposit').addEventListener('input', e=> e.target.dataset.userEdited = '1');
 
@@ -2282,6 +2441,7 @@ function resetForm(){
     serviceType:'package', procZone:null, procedures:new Set(), customProcedures:[], procManualPrices:{},
     addonZone:null, addonProcedures:new Set(), customAddonProcedures:[], addonManualPrices:{},
     courseProgram:null, courseOption:null, coursePurchaseType:'bundle', coursePatientType:'OPD', courseTherapistType:'pt',
+    dailyPkgDaysMode:'direct',
     billingEntity:'CMCC Home Care by CMNH'
   };
   updateBillingEntity();
@@ -2294,7 +2454,18 @@ function resetForm(){
   document.getElementById('packagePanel').style.display = '';
   document.getElementById('procedurePanel').style.display = 'none';
   document.getElementById('coursePanel').style.display = 'none';
+  document.getElementById('packagePanelLabel').textContent = '📅 แพ็กเกจรายเดือน';
   document.querySelectorAll('.package-only').forEach(el=> el.style.display = '');
+  document.querySelectorAll('.monthly-only').forEach(el=> el.style.display = '');
+  document.querySelectorAll('.dailypkg-only').forEach(el=> el.style.display = 'none');
+  document.getElementById('f_dailyPkgDaysCount').value = 1;
+  document.getElementById('f_dailyPkgRangeStart').value = '';
+  document.getElementById('f_dailyPkgRangeEnd').value = '';
+  document.getElementById('f_dailyPkgRate').value = '';
+  document.querySelectorAll('#dailyDaysModeRow .radio-chip').forEach(c=>c.classList.remove('checked'));
+  document.querySelector('#dailyDaysModeRow .radio-chip[data-val="direct"]')?.classList.add('checked');
+  document.querySelector('#dailyDaysModeRow input[value="direct"]').checked = true;
+  updateDailyDaysModeUI();
 
   document.getElementById('procChecklist').innerHTML = '';
   document.getElementById('addonChecklist').innerHTML = '';
@@ -2659,17 +2830,29 @@ async function saveRecord(){
     const prog = COURSE_PROGRAMS[state.courseProgram];
     const isFlatSingle = state.coursePurchaseType === 'single' && prog.singleSessionRate;
     if(!isFlatSingle && !state.courseOption){ return markInvalid('courseOptionField', 'กรุณาเลือกแพ็กเกจคอร์ส'); }
+  } else if(state.serviceType === 'dailyPackage'){
+    if(!state.pkg){ return markInvalid('pkgGrid', 'กรุณาเลือกแพ็กเกจ'); }
+    if(!state.format){ return markInvalid('formatRow', 'กรุณาเลือกรูปแบบบริการ'); }
+    if(!document.getElementById('f_dailyPkgRate').value){ return markInvalid('f_dailyPkgRate', 'กรุณาระบุอัตรารายวัน'); }
+    if(state.dailyPkgDaysMode === 'range'){
+      if(!document.getElementById('f_dailyPkgRangeStart').value || !document.getElementById('f_dailyPkgRangeEnd').value){
+        return markInvalid('dailyDaysRangeField', 'กรุณาเลือกวันที่เริ่ม-สิ้นสุด');
+      }
+    } else if(!document.getElementById('f_dailyPkgDaysCount').value){
+      return markInvalid('f_dailyPkgDaysCount', 'กรุณาระบุจำนวนวัน');
+    }
   }
 
   const isPackage = state.serviceType === 'package';
   const isProcedure = state.serviceType === 'procedure';
   const isCourse = state.serviceType === 'course';
+  const isDailyPkg = state.serviceType === 'dailyPackage';
 
-  const procTotal = isPackage ? procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices) : (isProcedure ? procSetTotal(state.procZone, state.procedures, state.customProcedures, state.procManualPrices) : 0);
-  const procZoneUsed = isPackage ? state.addonZone : (isProcedure ? state.procZone : null);
-  const procSetUsed = isPackage ? state.addonProcedures : (isProcedure ? state.procedures : new Set());
-  const procCustomUsed = isPackage ? state.customAddonProcedures : (isProcedure ? state.customProcedures : []);
-  const procManualUsed = isPackage ? state.addonManualPrices : (isProcedure ? state.procManualPrices : {});
+  const procTotal = (isPackage || isDailyPkg) ? procSetTotal(state.addonZone, state.addonProcedures, state.customAddonProcedures, state.addonManualPrices) : (isProcedure ? procSetTotal(state.procZone, state.procedures, state.customProcedures, state.procManualPrices) : 0);
+  const procZoneUsed = (isPackage || isDailyPkg) ? state.addonZone : (isProcedure ? state.procZone : null);
+  const procSetUsed = (isPackage || isDailyPkg) ? state.addonProcedures : (isProcedure ? state.procedures : new Set());
+  const procCustomUsed = (isPackage || isDailyPkg) ? state.customAddonProcedures : (isProcedure ? state.customProcedures : []);
+  const procManualUsed = (isPackage || isDailyPkg) ? state.addonManualPrices : (isProcedure ? state.procManualPrices : {});
 
   let courseProgramLabel = '', courseOptionLabel = '', courseSessionsTotal = '', courseSessionsUsed = '', courseTotalPrice = '';
   if(isCourse){
@@ -2710,8 +2893,8 @@ async function saveRecord(){
     contactName: document.getElementById('f_contactName').value,
     contactRelation: document.getElementById('f_contactRelation').value,
     contactPhone: document.getElementById('f_contactPhone').value,
-    packageName: isPackage && state.pkg ? PACKAGES[state.pkg].name : '',
-    serviceFormat: isPackage && state.format ? state.format + ' ชั่วโมง' : '',
+    packageName: (isPackage || isDailyPkg) && state.pkg ? PACKAGES[state.pkg].name : '',
+    serviceFormat: (isPackage || isDailyPkg) && state.format ? state.format + ' ชั่วโมง' : '',
     equipment: Array.from(state.equipment),
     notes: document.getElementById('f_conditionNotes').value,
     startDate: document.getElementById('f_startDate').value,
@@ -2727,10 +2910,16 @@ async function saveRecord(){
     holidayChargeAmount: isPackage ? getHolidayTotal() || '' : '',
     deposit: isPackage ? document.getElementById('f_deposit').value : '',
     depositStatus: isPackage ? document.getElementById('f_depositStatus').value : '',
+    dailyPkgRate: isDailyPkg ? document.getElementById('f_dailyPkgRate').value : '',
+    dailyPkgDaysMode: isDailyPkg ? (state.dailyPkgDaysMode === 'range' ? 'ช่วงวันที่' : 'กรอกเอง') : '',
+    dailyPkgDays: isDailyPkg ? getDailyPkgDaysCount() : '',
+    dailyPkgRangeStart: (isDailyPkg && state.dailyPkgDaysMode === 'range') ? document.getElementById('f_dailyPkgRangeStart').value : '',
+    dailyPkgRangeEnd: (isDailyPkg && state.dailyPkgDaysMode === 'range') ? document.getElementById('f_dailyPkgRangeEnd').value : '',
+    dailyPkgTotal: isDailyPkg ? getDailyPkgTotal() : '',
     remarks: document.getElementById('f_remarks').value,
     recordedBy: document.getElementById('f_recordedBy').value,
     billingEntity: state.billingEntity,
-    serviceTypeLabel: isPackage ? 'แพ็กเกจรายเดือน' : (isProcedure ? 'บริการหัตถการครั้งเดียว' : 'คอร์ส/โปรแกรมบริการ'),
+    serviceTypeLabel: isPackage ? 'แพ็กเกจรายเดือน' : (isProcedure ? 'บริการหัตถการครั้งเดียว' : (isDailyPkg ? 'แพ็กเกจรายวัน' : 'คอร์ส/โปรแกรมบริการ')),
     zoneLabel: procZoneUsed ? ZONES[procZoneUsed].label.split(' ·')[0] : '',
     procedureListText: procListText(procZoneUsed, procSetUsed, procCustomUsed, procManualUsed),
     procedureTotal: procTotal || '',
@@ -2939,6 +3128,117 @@ function openInvoice(payload, refId){
                 <tr class="inv-total-row"><td>${isSingleVisit ? 'ยอดชำระ' : 'ยอดชำระทั้งคอร์ส'}</td><td class="amt">฿${price.toLocaleString()}</td></tr>
               </tbody>
             </table>
+            ${signatureBlockHtml(payload)}
+            <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care by CMNH')} ดูแลคนที่คุณรัก</div>
+          </td></tr>
+        </tbody>
+      </table>
+    `;
+    invoiceModal.classList.add('show');
+    return;
+  }
+
+  if(payload.serviceTypeLabel === 'แพ็กเกจรายวัน'){
+    const dp = payload.packageName ? PACKAGES[PACKAGE_BY_NAME[payload.packageName]] : null;
+    const dpRate = Number(payload.dailyPkgRate) || 0;
+    const dpDays = Number(payload.dailyPkgDays) || 0;
+    const dpTotal = Number(payload.dailyPkgTotal) || (dpRate * dpDays) || 0;
+    const dpProcTotal = Number(payload.procedureTotal) || 0;
+    const dpProcItems = payload.procedureListText ? payload.procedureListText.split('; ') : [];
+    const dpTotalAll = dpTotal + dpProcTotal;
+    const dpDateRange = (payload.dailyPkgDaysMode === 'ช่วงวันที่' && payload.dailyPkgRangeStart && payload.dailyPkgRangeEnd)
+      ? `${cleanDateDisplay(payload.dailyPkgRangeStart)} – ${cleanDateDisplay(payload.dailyPkgRangeEnd)}`
+      : '';
+    const dpIncludes = dp ? dp.includes : [];
+
+    lastInvoiceText = [
+      `${payload.billingEntity || 'CMCC Home Care by CMNH'} — ใบสรุปแพ็กเกจรายวัน`,
+      `เลขที่เอกสาร: ${docNo}`,
+      `วันที่ออกเอกสาร: ${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}`,
+      '',
+      `ผู้รับบริการ: ${payload.clientName} (อายุ ${payload.age||'—'} ปี, ${payload.gender||'—'})`,
+      `ที่อยู่: ${payload.address || 'ยังไม่ระบุ'}`,
+      `ผู้ติดต่อ: ${payload.contactName||'—'} (${payload.contactRelation||'—'}) โทร ${payload.contactPhone||'—'}`,
+      '',
+      `แพ็กเกจ: ${payload.packageName||'—'} (รายวัน)`,
+      `รูปแบบบริการ: ${payload.serviceFormat||'—'}`,
+      dpDateRange ? `ช่วงวันที่ให้บริการ: ${dpDateRange}` : '',
+      `วันเริ่มบริการ: ${cleanDateDisplay(payload.startDate)}`,
+      `เจ้าหน้าที่ผู้ดูแล: ${payload.caregiver||'แจ้งภายหลัง'}`,
+      '',
+      `อัตรารายวัน: ฿${dpRate.toLocaleString()}/วัน × ${dpDays} วัน = ฿${dpTotal.toLocaleString()}`,
+      dpProcTotal ? `บริการหัตถการเสริม${payload.zoneLabel ? ' ('+payload.zoneLabel+')' : ''}: ฿${dpProcTotal.toLocaleString()}${dpProcItems.length ? ' — ' + dpProcItems.join(', ') : ''}` : '',
+      `ยอดชำระ: ฿${dpTotalAll.toLocaleString()}`,
+      '',
+      'เงื่อนไขการชำระเงิน: ชำระค่าบริการล่วงหน้าก่อนเริ่มบริการทุกครั้ง',
+      '',
+      `ขอบคุณที่ไว้วางใจให้ ${payload.billingEntity || 'CMCC Home Care by CMNH'} ดูแลคนที่คุณรัก`
+    ].filter(Boolean).join('\n');
+
+    document.getElementById('invoiceBody').innerHTML = `
+      <table class="inv-wrapper-table">
+        <thead class="inv-thead">
+          <tr><td>
+            <div class="inv-head">
+              <div class="inv-brand">
+                <div class="inv-brand-mark">${invoiceLogoImg(payload)}</div>
+                <div>
+                  <div class="inv-brand-name">${escapeHtml(payload.billingEntity || 'CMCC Home Care by CMNH')}</div>
+                  ${clinicFullNameLine(payload)}
+                  <div class="inv-brand-sub">ใบสรุปแพ็กเกจรายวัน</div>
+                </div>
+              </div>
+              <div class="inv-meta">
+                เลขที่เอกสาร <b>${docNo}</b><br>
+                วันที่ออกเอกสาร <b>${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}</b>
+              </div>
+            </div>
+          </td></tr>
+        </thead>
+        <tbody class="inv-tbody">
+          <tr><td>
+            <div class="inv-cols">
+              <div>
+                <div class="inv-block-lbl">ผู้รับบริการ</div>
+                <div class="inv-line"><b>${escapeHtml(payload.clientName)}</b></div>
+                <div class="inv-line"><span>อายุ ${escapeHtml(payload.age||'—')} ปี · ${escapeHtml(payload.gender||'—')}</span></div>
+                <div class="inv-line"><span>${escapeHtml(payload.address||'ยังไม่ระบุที่อยู่')}</span></div>
+              </div>
+              <div>
+                <div class="inv-block-lbl">เรียนแจ้งถึงผู้ติดต่อ</div>
+                <div class="inv-line"><b>${escapeHtml(payload.contactName || '—')}</b> <span>${payload.contactRelation ? '('+escapeHtml(payload.contactRelation)+')' : ''}</span></div>
+                <div class="inv-line"><span>โทร ${escapeHtml(payload.contactPhone || '—')}</span></div>
+              </div>
+            </div>
+
+            <div class="inv-service-box">
+              <div class="inv-service-row"><span>แพ็กเกจ</span><b>${escapeHtml(payload.packageName || '—')} (รายวัน)</b></div>
+              <div class="inv-service-row"><span>รูปแบบบริการ</span><b>${escapeHtml(payload.serviceFormat || '—')}</b></div>
+              ${dpDateRange ? `<div class="inv-service-row"><span>ช่วงวันที่ให้บริการ</span><b>${escapeHtml(dpDateRange)}</b></div>` : ''}
+              <div class="inv-service-row"><span>วันเริ่มบริการ</span><b>${escapeHtml(cleanDateDisplay(payload.startDate))}</b></div>
+              <div class="inv-service-row"><span>เจ้าหน้าที่ผู้ดูแล</span><b>${escapeHtml(payload.caregiver || 'แจ้งภายหลัง')}</b></div>
+            </div>
+
+            ${dpIncludes.length ? `<div class="inv-block-lbl">บริการที่รวมอยู่ในแพ็กเกจนี้</div>
+            <ul class="inv-checklist">
+              ${dpIncludes.map(i=>`<li>${i}</li>`).join('')}
+              ${BASE_INCLUDES.slice(0,4).map(i=>`<li>${i}</li>`).join('')}
+            </ul>` : ''}
+
+            <table class="inv-charges">
+              <thead><tr><th>รายการ</th><th style="text-align:right;">จำนวนเงิน (บาท)</th></tr></thead>
+              <tbody>
+                <tr><td>อัตรารายวัน ฿${dpRate.toLocaleString()} × ${dpDays} วัน</td><td class="amt">฿${dpTotal.toLocaleString()}</td></tr>
+                ${dpProcTotal ? `<tr><td>บริการหัตถการเสริม${payload.zoneLabel ? ' ('+escapeHtml(payload.zoneLabel)+')' : ''}${dpProcItems.length ? '<br><span style="font-size:11px; color:var(--ink-faint);">'+escapeHtml(dpProcItems.join(', '))+'</span>' : ''}</td><td class="amt">฿${dpProcTotal.toLocaleString()}</td></tr>` : ''}
+                <tr class="inv-total-row"><td>ยอดชำระ</td><td class="amt">฿${dpTotalAll.toLocaleString()}</td></tr>
+              </tbody>
+            </table>
+
+            <div class="inv-terms">
+              <b>เงื่อนไขการชำระเงิน</b>
+              ชำระค่าบริการล่วงหน้าก่อนเริ่มบริการทุกครั้ง
+            </div>
+
             ${signatureBlockHtml(payload)}
             <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(payload.billingEntity || 'CMCC Home Care by CMNH')} ดูแลคนที่คุณรัก</div>
           </td></tr>
@@ -3213,7 +3513,7 @@ function reprintInvoice(id){
     depositStatus: r['สถานะเงินประกัน'] || '',
     startDate: r['วันเริ่มบริการ'] || '',
     caregiver: r['เจ้าหน้าที่ผู้ดูแล'] || '',
-    billingEntity: (r['ออกเอกสารในนาม'] === 'CMCC Home Care' ? 'CMCC Home Care by CMNH' : r['ออกเอกสารในนาม']) || ((r['ประเภทเคส'] || '') === 'แพ็กเกจรายเดือน' ? 'CMCC Home Care by CMNH' : 'คลินิกหมอต้น'),
+    billingEntity: (r['ออกเอกสารในนาม'] === 'CMCC Home Care' ? 'CMCC Home Care by CMNH' : r['ออกเอกสารในนาม']) || ((r['ประเภทเคส'] || '') === 'แพ็กเกจรายเดือน' || (r['ประเภทเคส'] || '') === 'แพ็กเกจรายวัน' ? 'CMCC Home Care by CMNH' : 'คลินิกหมอต้น'),
     serviceTypeLabel: r['ประเภทเคส'] || '',
     zoneLabel: r['โซนบริการ'] || '',
     procedureListText: r['รายการหัตถการ'] || '',
@@ -3222,7 +3522,13 @@ function reprintInvoice(id){
     courseOptionLabel: r['แพ็กเกจคอร์ส'] || '',
     courseSessionsTotal: r['จำนวนครั้งทั้งหมด'] || '',
     courseSessionsUsed: r['จำนวนครั้งที่ใช้ไป'] || '',
-    courseTotalPrice: r['ราคาคอร์สรวม (บาท)'] || r['ราคาคอร์สรวม'] || ''
+    courseTotalPrice: r['ราคาคอร์สรวม (บาท)'] || r['ราคาคอร์สรวม'] || '',
+    dailyPkgRate: r['อัตรารายวัน (แพ็กเกจรายวัน) (บาท)'] || r['dailyPkgRate'] || '',
+    dailyPkgDaysMode: r['วิธีนับจำนวนวัน (แพ็กเกจรายวัน)'] || r['dailyPkgDaysMode'] || '',
+    dailyPkgDays: r['จำนวนวัน (แพ็กเกจรายวัน)'] || r['dailyPkgDays'] || '',
+    dailyPkgRangeStart: r['วันที่เริ่ม (แพ็กเกจรายวัน)'] || r['dailyPkgRangeStart'] || '',
+    dailyPkgRangeEnd: r['วันที่สิ้นสุด (แพ็กเกจรายวัน)'] || r['dailyPkgRangeEnd'] || '',
+    dailyPkgTotal: r['ยอดรวมแพ็กเกจรายวัน (บาท)'] || r['dailyPkgTotal'] || ''
   };
   openInvoice(payload, r['id']);
 }
@@ -3377,6 +3683,50 @@ function fillFormFromRecord(r){
         updateCourseSubtotal();
       }
     }
+  } else if(r['ประเภทเคส'] === 'แพ็กเกจรายวัน'){
+    state.serviceType = 'dailyPackage';
+    document.querySelectorAll('#serviceTypeRow .radio-chip').forEach(c=>c.classList.remove('checked'));
+    const dailyChip = document.querySelector('#serviceTypeRow .radio-chip[data-val="dailyPackage"]');
+    dailyChip.classList.add('checked');
+    dailyChip.querySelector('input').checked = true;
+    document.getElementById('packagePanel').style.display = '';
+    document.getElementById('procedurePanel').style.display = 'none';
+    document.getElementById('coursePanel').style.display = 'none';
+    document.getElementById('packagePanelLabel').textContent = '📆 แพ็กเกจรายวัน';
+    document.querySelectorAll('.package-only').forEach(el=> el.style.display = '');
+    document.querySelectorAll('.monthly-only').forEach(el=> el.style.display = 'none');
+    document.querySelectorAll('.dailypkg-only').forEach(el=> el.style.display = '');
+    document.getElementById('f_holidayCharge').checked = false;
+    document.getElementById('holidayChargeWrap').classList.remove('checked');
+    document.getElementById('holidayAmountField').style.display = 'none';
+    document.getElementById('holidayTotalRow').style.display = 'none';
+
+    const dpMode = (r['วิธีนับจำนวนวัน (แพ็กเกจรายวัน)'] || r['dailyPkgDaysMode']) === 'ช่วงวันที่' ? 'range' : 'direct';
+    state.dailyPkgDaysMode = dpMode;
+    document.querySelectorAll('#dailyDaysModeRow .radio-chip').forEach(c=> c.classList.toggle('checked', c.dataset.val === dpMode));
+    document.querySelector(`#dailyDaysModeRow input[value="${dpMode}"]`).checked = true;
+    updateDailyDaysModeUI();
+    document.getElementById('f_dailyPkgRate').value = r['อัตรารายวัน (แพ็กเกจรายวัน) (บาท)'] || r['dailyPkgRate'] || '';
+    if(dpMode === 'range'){
+      document.getElementById('f_dailyPkgRangeStart').value = String(r['วันที่เริ่ม (แพ็กเกจรายวัน)'] || r['dailyPkgRangeStart'] || '').slice(0,10);
+      document.getElementById('f_dailyPkgRangeEnd').value = String(r['วันที่สิ้นสุด (แพ็กเกจรายวัน)'] || r['dailyPkgRangeEnd'] || '').slice(0,10);
+    } else {
+      document.getElementById('f_dailyPkgDaysCount').value = r['จำนวนวัน (แพ็กเกจรายวัน)'] || r['dailyPkgDays'] || 1;
+    }
+    refreshDailyPkgSubtotal();
+
+    if(zoneCode){
+      state.addonZone = zoneCode;
+      document.querySelector(`#addonZoneRow .radio-chip[data-val="${zoneCode}"]`)?.classList.add('checked');
+    }
+    matchedProcKeys.forEach(k => state.addonProcedures.add(k));
+    state.customAddonProcedures = matchedCustomItems;
+    state.addonManualPrices = matchedManualPrices;
+    buildProcChecklist(document.getElementById('addonChecklist'), ()=>state.addonZone, state.addonProcedures, refreshAddonSubtotal);
+    buildManualPriceChecklist(document.getElementById('addonManualChecklist'), state.addonManualPrices, refreshAddonSubtotal);
+    renderCustomProcList('addonCustomList', ()=>state.customAddonProcedures, refreshAddonSubtotal);
+    refreshAddonSubtotal();
+    toggleAddonSection(true);
   } else if(matchedProcKeys.length || matchedCustomItems.length || Object.keys(matchedManualPrices).length){
     if(zoneCode){
       state.addonZone = zoneCode;
@@ -3475,6 +3825,14 @@ function showTableSkeleton(){
 let sortState = { key:null, dir:'asc' };
 let contractEndSortActive = false;
 
+function getRecordFee(r){
+  const type = r['ประเภทเคส'];
+  if(type === 'บริการหัตถการครั้งเดียว') return r['ค่าบริการหัตถการ (บาท)'];
+  if(type === 'คอร์ส/โปรแกรมบริการ') return r['ราคาคอร์สรวม (บาท)'];
+  if(type === 'แพ็กเกจรายวัน') return r['ยอดรวมแพ็กเกจรายวัน (บาท)'] || r['dailyPkgTotal'];
+  return r['ค่าบริการต่อเดือน (บาท)'];
+}
+
 function getSortValue(r, key){
   if(key === 'วันเริ่มบริการ' || key === 'วันครบกำหนดสัญญา'){
     const v = r[key];
@@ -3482,10 +3840,7 @@ function getSortValue(r, key){
     return key === 'วันครบกำหนดสัญญา' ? Infinity : -Infinity;
   }
   if(key === 'ค่าบริการต่อเดือน (บาท)'){
-    const isProc = r['ประเภทเคส'] === 'บริการหัตถการครั้งเดียว';
-    const isCourse = r['ประเภทเคส'] === 'คอร์ส/โปรแกรมบริการ';
-    const fee = isProc ? r['ค่าบริการหัตถการ (บาท)'] : (isCourse ? r['ราคาคอร์สรวม (บาท)'] : r['ค่าบริการต่อเดือน (บาท)']);
-    return Number(fee) || 0;
+    return Number(getRecordFee(r)) || 0;
   }
   return (r[key] || '').toString().toLowerCase();
 }
@@ -3560,7 +3915,8 @@ function renderRecords(){
     const cls = STATUS_CLASS[r['สถานะ']] || 'st-wait';
     const isProc = r['ประเภทเคส'] === 'บริการหัตถการครั้งเดียว';
     const isCourse = r['ประเภทเคส'] === 'คอร์ส/โปรแกรมบริการ';
-    const fee = isProc ? r['ค่าบริการหัตถการ (บาท)'] : (isCourse ? r['ราคาคอร์สรวม (บาท)'] : r['ค่าบริการต่อเดือน (บาท)']);
+    const isDailyPkg = r['ประเภทเคส'] === 'แพ็กเกจรายวัน';
+    const fee = getRecordFee(r);
     let pkgCell;
     if(isProc){
       pkgCell = `<div class="cell-name" style="font-size:12.5px;">หัตถการครั้งเดียว</div><div class="cell-sub">${escapeHtml(r['โซนบริการ']||'')}</div>`;
@@ -3576,6 +3932,9 @@ function renderRecords(){
         sub = `<span style="${remaining<=2 && remaining>=0 ? 'color:var(--rose); font-weight:600;' : ''}">ใช้ไป ${used}/${total} · เหลือ ${remaining}</span>`;
       }
       pkgCell = `<div class="cell-name" style="font-size:12.5px;">${escapeHtml(r['แพ็กเกจคอร์ส']||'คอร์สบริการ')}</div><div class="cell-sub">${sub}</div>`;
+    } else if(isDailyPkg){
+      const days = r['จำนวนวัน (แพ็กเกจรายวัน)'] || r['dailyPkgDays'] || '';
+      pkgCell = escapeHtml(r['แพ็กเกจ']||'—') + `<div class="cell-sub">รายวัน${days ? ' · '+escapeHtml(String(days))+' วัน' : ''}${Number(r['ค่าบริการหัตถการ (บาท)'])>0 ? ' · + หัตถการเสริม '+escapeHtml(r['โซนบริการ']||'') : ''}</div>`;
     } else {
       pkgCell = escapeHtml(r['แพ็กเกจ']||'—') + (Number(r['ค่าบริการหัตถการ (บาท)'])>0 ? `<div class="cell-sub">+ หัตถการเสริม ${escapeHtml(r['โซนบริการ']||'')}</div>` : '');
     }
@@ -3700,8 +4059,8 @@ document.getElementById('btnExportExcel').addEventListener('click', ()=>{
   if(!rows.length){ showToast('ไม่มีข้อมูลให้ export', true); return; }
   const wsData = rows.map(r=>({
     'ผู้รับบริการ': r['ชื่อผู้รับบริการ'], 'ผู้ติดต่อ': r['ผู้ติดต่อ'], 'เบอร์โทรผู้ติดต่อ': r['เบอร์โทรผู้ติดต่อ'],
-    'แพ็กเกจ': r['แพ็กเกจ'], 'รูปแบบบริการ': r['รูปแบบบริการ'], 'วันเริ่มบริการ': r['วันเริ่มบริการ'],
-    'สถานะ': r['สถานะ'], 'ค่าบริการต่อเดือน (บาท)': r['ค่าบริการต่อเดือน (บาท)'], 'เจ้าหน้าที่ผู้ดูแล': r['เจ้าหน้าที่ผู้ดูแล']
+    'ประเภทเคส': r['ประเภทเคส'], 'แพ็กเกจ': r['แพ็กเกจ'], 'รูปแบบบริการ': r['รูปแบบบริการ'], 'วันเริ่มบริการ': r['วันเริ่มบริการ'],
+    'สถานะ': r['สถานะ'], 'ค่าบริการ (บาท)': getRecordFee(r), 'เจ้าหน้าที่ผู้ดูแล': r['เจ้าหน้าที่ผู้ดูแล']
   }));
   const ws = XLSX.utils.json_to_sheet(wsData);
   const wb = XLSX.utils.book_new();
@@ -3720,19 +4079,22 @@ document.getElementById('btnExportPDF').addEventListener('click', async ()=>{
       <thead><tr style="background:#E8ECE7;">
         <th style="text-align:left; padding:6px;">ผู้รับบริการ</th><th style="text-align:left; padding:6px;">แพ็กเกจ</th>
         <th style="text-align:left; padding:6px;">รูปแบบ</th><th style="text-align:left; padding:6px;">เริ่มบริการ</th>
-        <th style="text-align:left; padding:6px;">สถานะ</th><th style="text-align:right; padding:6px;">ค่าบริการ/เดือน</th>
+        <th style="text-align:left; padding:6px;">สถานะ</th><th style="text-align:right; padding:6px;">ค่าบริการ</th>
         <th style="text-align:left; padding:6px;">เจ้าหน้าที่</th>
       </tr></thead>
       <tbody>
-        ${rows.map(r=>`<tr style="border-bottom:1px solid #DCE3DD;">
+        ${rows.map(r=>{
+          const fee = getRecordFee(r);
+          return `<tr style="border-bottom:1px solid #DCE3DD;">
           <td style="padding:6px;">${escapeHtml(r['ชื่อผู้รับบริการ']||'—')}</td>
           <td style="padding:6px;">${escapeHtml(r['แพ็กเกจ']||'—')}</td>
           <td style="padding:6px;">${escapeHtml(r['รูปแบบบริการ']||'—')}</td>
           <td style="padding:6px;">${escapeHtml(cleanDateDisplay(r['วันเริ่มบริการ']))}</td>
           <td style="padding:6px;">${escapeHtml(r['สถานะ']||'—')}</td>
-          <td style="padding:6px; text-align:right;">${r['ค่าบริการต่อเดือน (บาท)'] ? '฿'+Number(r['ค่าบริการต่อเดือน (บาท)']).toLocaleString() : '—'}</td>
+          <td style="padding:6px; text-align:right;">${fee ? '฿'+Number(fee).toLocaleString() : '—'}</td>
           <td style="padding:6px;">${escapeHtml(r['เจ้าหน้าที่ผู้ดูแล']||'—')}</td>
-        </tr>`).join('')}
+        </tr>`;
+        }).join('')}
       </tbody>
     </table>`;
   // temporarily render off-screen (not display:none) so html2canvas can capture it
