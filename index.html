@@ -836,6 +836,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       แดชบอร์ด
     </button>
+    <button class="tab-btn" data-view="staff">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 8.5a3 3 0 1 0 0-6M18 13.2c2.4.5 4 2.4 4 4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      พนักงาน
+    </button>
   </div>
 
   <!-- ============ ENTRY VIEW ============ -->
@@ -1192,7 +1196,8 @@
             </div>
             <div class="field">
               <label>เจ้าหน้าที่ผู้ดูแล</label>
-              <input type="text" id="f_caregiver" placeholder="ระบุภายหลังได้">
+              <input type="text" id="f_caregiver" list="staffNicknameList" placeholder="พิมพ์หรือเลือกจากรายชื่อพนักงาน">
+              <datalist id="staffNicknameList"></datalist>
             </div>
             <div class="field">
               <label>สถานะ</label>
@@ -1368,6 +1373,114 @@
       <div id="historyList"><div class="dash-empty">กำลังโหลด...</div></div>
     </div>
   </div>
+
+  <!-- ============ STAFF VIEW ============ -->
+  <div class="view" id="view-staff">
+    <div class="records-toolbar">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" id="staffSearchInput" placeholder="ค้นหาชื่อพนักงาน...">
+      </div>
+      <button class="btn btn-primary" id="btnAddStaff" type="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        เพิ่มพนักงาน
+      </button>
+      <button class="btn btn-ghost" id="btnRefreshStaff" type="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 15a7 7 0 0 0 12.4 2.5M18.5 9a7 7 0 0 0-12.4-2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        รีเฟรช
+      </button>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>ชื่อ-นามสกุล</th>
+            <th>ชื่อเล่น</th>
+            <th>ตำแหน่ง</th>
+            <th>เบอร์โทร</th>
+            <th>ค่าตอบแทน</th>
+            <th>สถานะ</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="staffBody"></tbody>
+      </table>
+      </div>
+      <div class="empty-state" id="staffEmpty" style="display:none;">
+        <div class="big">ยังไม่มีรายชื่อพนักงาน</div>
+        <div class="small">กด "เพิ่มพนักงาน" เพื่อเริ่มสร้างรายชื่อ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal-backdrop" id="staffModal">
+  <div class="confirm-card" style="max-width:480px; text-align:left;">
+    <div class="confirm-title" id="staffModalTitle">เพิ่มพนักงาน</div>
+    <div class="field-grid cols-2" style="margin-top:10px;">
+      <div class="field">
+        <label>ชื่อ-นามสกุล<span class="req">*</span></label>
+        <input type="text" id="f_staffFullName" placeholder="เช่น สมหญิง ใจดี">
+      </div>
+      <div class="field">
+        <label>ชื่อเล่น (ใช้ในระบบ)<span class="req">*</span></label>
+        <input type="text" id="f_staffNickname" placeholder="เช่น น้องนิด">
+        <span class="helptext">ชื่อนี้จะขึ้นในช่อง "เจ้าหน้าที่ผู้ดูแล" ตอนบันทึกเคส</span>
+      </div>
+      <div class="field">
+        <label>ตำแหน่ง</label>
+        <input type="text" id="f_staffRole" placeholder="เช่น ผู้ดูแลผู้สูงอายุ">
+      </div>
+      <div class="field">
+        <label>เบอร์โทร</label>
+        <input type="tel" id="f_staffPhone" placeholder="08x-xxx-xxxx">
+      </div>
+      <div class="field" style="grid-column:1/-1;">
+        <label>ประเภทค่าตอบแทน<span class="req">*</span></label>
+        <div class="radio-row" id="staffPayTypeRow">
+          <label class="radio-chip checked" data-val="hourly">
+            <input type="radio" name="staffPayType" value="hourly" checked>
+            <span class="dot"></span> รายชั่วโมง
+          </label>
+          <label class="radio-chip" data-val="perShift">
+            <input type="radio" name="staffPayType" value="perShift">
+            <span class="dot"></span> เหมาต่อเวร
+          </label>
+        </div>
+      </div>
+      <div class="field" id="staffHourlyRateField">
+        <label>อัตราค่าตอบแทนต่อชั่วโมง (บาท)<span class="req">*</span></label>
+        <input type="number" id="f_staffHourlyRate" placeholder="เช่น 60" min="0">
+      </div>
+      <div class="field" id="staffShiftRateField" style="display:none;">
+        <label>อัตราค่าตอบแทนต่อเวร (บาท)<span class="req">*</span></label>
+        <input type="number" id="f_staffShiftRate" placeholder="เช่น 500" min="0">
+        <span class="helptext">จ่ายเป็นก้อนต่อ 1 เวร/เคสที่รับผิดชอบ ไม่ว่ากี่ชั่วโมง</span>
+      </div>
+      <div class="field">
+        <label>สถานะ</label>
+        <select id="f_staffStatus">
+          <option>ทำงานอยู่</option>
+          <option>ลาออกแล้ว</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>วันที่เริ่มงาน</label>
+        <input type="date" id="f_staffStartDate">
+      </div>
+      <div class="field" style="grid-column:1/-1;">
+        <label>หมายเหตุ</label>
+        <input type="text" id="f_staffNotes" placeholder="ระบุภายหลังได้">
+      </div>
+    </div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="btnStaffModalCancel" type="button">ยกเลิก</button>
+      <button class="btn btn-primary" id="btnStaffModalSave" type="button">บันทึก</button>
+    </div>
+  </div>
 </div>
 
 
@@ -1450,6 +1563,10 @@
   <button class="bn-btn" data-view="dashboard">
     <span class="bn-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
     <span>แดชบอร์ด</span>
+  </button>
+  <button class="bn-btn" data-view="staff">
+    <span class="bn-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 8.5a3 3 0 1 0 0-6M18 13.2c2.4.5 4 2.4 4 4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+    <span>พนักงาน</span>
   </button>
 </nav>
 
@@ -1590,6 +1707,7 @@ function switchTab(viewName){
   if(viewName === 'entry') showEntryHome();
   if(viewName === 'records') loadRecords();
   if(viewName === 'dashboard'){ loadRecords().then(renderDashboard); loadHistory(); }
+  if(viewName === 'staff') loadStaff();
   if(viewName !== 'entry') document.getElementById('mobileSaveBar').classList.remove('show');
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -4056,6 +4174,203 @@ async function loadHistory(){
     el.innerHTML = '<div class="dash-empty">ไม่สามารถโหลดประวัติได้</div>';
   }
 }
+
+/* ============ STAFF (พนักงาน) ============ */
+let allStaff = [];
+let editingStaffId = null;
+
+async function loadStaff(){
+  const tbody = document.getElementById('staffBody');
+  try{
+    const sep = webhookUrl.includes('?') ? '&' : '?';
+    const res = await fetch(webhookUrl + sep + 'type=staff');
+    const data = await res.json();
+    if(data.ok){
+      allStaff = data.staff || [];
+      renderStaffList();
+      refreshStaffNicknameList();
+    } else {
+      showToast(data.error || 'โหลดรายชื่อพนักงานไม่สำเร็จ', true);
+    }
+  } catch(err){
+    showToast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง', true);
+  }
+  return allStaff;
+}
+
+function refreshStaffNicknameList(){
+  const dl = document.getElementById('staffNicknameList');
+  if(!dl) return;
+  dl.innerHTML = allStaff
+    .filter(s => s['สถานะ'] !== 'ลาออกแล้ว')
+    .map(s => `<option value="${escapeHtml(s['ชื่อเล่น']||'')}"></option>`).join('');
+}
+
+function renderStaffList(){
+  const tbody = document.getElementById('staffBody');
+  const q = (document.getElementById('staffSearchInput').value || '').trim().toLowerCase();
+  const rows = allStaff.filter(s=>{
+    if(!q) return true;
+    return (s['ชื่อ-นามสกุล']||'').toLowerCase().includes(q) || (s['ชื่อเล่น']||'').toLowerCase().includes(q);
+  });
+  document.getElementById('staffEmpty').style.display = rows.length ? 'none' : '';
+  tbody.innerHTML = rows.map(s=>{
+    const isActive = s['สถานะ'] !== 'ลาออกแล้ว';
+    const isPerShift = s['ประเภทค่าตอบแทน'] === 'เหมาต่อเวร';
+    const rateDisplay = isPerShift
+      ? (s['อัตราค่าตอบแทนต่อเวร (บาท)'] ? '฿'+Number(s['อัตราค่าตอบแทนต่อเวร (บาท)']).toLocaleString()+'/เวร' : '—')
+      : (s['อัตราค่าตอบแทนต่อชั่วโมง (บาท)'] ? '฿'+Number(s['อัตราค่าตอบแทนต่อชั่วโมง (บาท)']).toLocaleString()+'/ชม.' : '—');
+    return `<tr>
+      <td><div class="cell-name">${escapeHtml(s['ชื่อ-นามสกุล']||'—')}</div></td>
+      <td>${escapeHtml(s['ชื่อเล่น']||'—')}</td>
+      <td>${escapeHtml(s['ตำแหน่ง']||'—')}</td>
+      <td>${escapeHtml(s['เบอร์โทร']||'—')}</td>
+      <td class="font-mono">${rateDisplay}</td>
+      <td><span class="badge ${isActive ? 'st-active' : 'st-cancel'}">${escapeHtml(s['สถานะ']||'—')}</span></td>
+      <td>
+        <button class="icon-btn" title="แก้ไข" data-staff-edit="${s['id']}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn" title="ลบ" data-staff-delete="${s['id']}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+document.getElementById('staffBody').addEventListener('click', (e)=>{
+  const editBtn = e.target.closest('.icon-btn[data-staff-edit]');
+  if(editBtn){ editStaff(editBtn.dataset.staffEdit); return; }
+  const delBtn = e.target.closest('.icon-btn[data-staff-delete]');
+  if(delBtn){
+    const staff = allStaff.find(s => String(s['id']) === String(delBtn.dataset.staffDelete));
+    deleteStaff(delBtn.dataset.staffDelete, staff ? staff['ชื่อ-นามสกุล'] : '');
+  }
+});
+document.getElementById('staffSearchInput').addEventListener('input', renderStaffList);
+document.getElementById('btnRefreshStaff').addEventListener('click', loadStaff);
+
+function openStaffModal(staff){
+  editingStaffId = staff ? staff['id'] : null;
+  document.getElementById('staffModalTitle').textContent = staff ? 'แก้ไขข้อมูลพนักงาน' : 'เพิ่มพนักงาน';
+  document.getElementById('f_staffFullName').value = staff ? (staff['ชื่อ-นามสกุล']||'') : '';
+  document.getElementById('f_staffNickname').value = staff ? (staff['ชื่อเล่น']||'') : '';
+  document.getElementById('f_staffRole').value = staff ? (staff['ตำแหน่ง']||'') : '';
+  document.getElementById('f_staffPhone').value = staff ? (staff['เบอร์โทร']||'') : '';
+  document.getElementById('f_staffHourlyRate').value = staff ? (staff['อัตราค่าตอบแทนต่อชั่วโมง (บาท)']||'') : '';
+  document.getElementById('f_staffShiftRate').value = staff ? (staff['อัตราค่าตอบแทนต่อเวร (บาท)']||'') : '';
+  document.getElementById('f_staffStatus').value = staff ? (staff['สถานะ']||'ทำงานอยู่') : 'ทำงานอยู่';
+  document.getElementById('f_staffStartDate').value = staff ? String(staff['วันที่เริ่มงาน']||'').slice(0,10) : '';
+  document.getElementById('f_staffNotes').value = staff ? (staff['หมายเหตุ']||'') : '';
+  const payType = (staff && staff['ประเภทค่าตอบแทน'] === 'เหมาต่อเวร') ? 'perShift' : 'hourly';
+  document.querySelectorAll('#staffPayTypeRow .radio-chip').forEach(c=> c.classList.toggle('checked', c.dataset.val === payType));
+  document.querySelector(`#staffPayTypeRow input[value="${payType}"]`).checked = true;
+  updateStaffPayTypeUI(payType);
+  document.getElementById('staffModal').classList.add('show');
+}
+document.getElementById('btnAddStaff').addEventListener('click', ()=> openStaffModal(null));
+document.getElementById('btnStaffModalCancel').addEventListener('click', ()=>{
+  document.getElementById('staffModal').classList.remove('show');
+});
+
+function updateStaffPayTypeUI(payType){
+  document.getElementById('staffHourlyRateField').style.display = payType === 'perShift' ? 'none' : '';
+  document.getElementById('staffShiftRateField').style.display = payType === 'perShift' ? '' : 'none';
+}
+document.querySelectorAll('#staffPayTypeRow .radio-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('#staffPayTypeRow .radio-chip').forEach(c=>c.classList.remove('checked'));
+    chip.classList.add('checked');
+    chip.querySelector('input').checked = true;
+    updateStaffPayTypeUI(chip.dataset.val);
+  });
+});
+
+function editStaff(id){
+  const staff = allStaff.find(s => String(s['id']) === String(id));
+  if(staff) openStaffModal(staff);
+}
+
+document.getElementById('btnStaffModalSave').addEventListener('click', async ()=>{
+  const fullName = document.getElementById('f_staffFullName').value.trim();
+  const nickname = document.getElementById('f_staffNickname').value.trim();
+  const payType = document.querySelector('#staffPayTypeRow .radio-chip.checked')?.dataset.val || 'hourly';
+  const hourlyRate = document.getElementById('f_staffHourlyRate').value;
+  const shiftRate = document.getElementById('f_staffShiftRate').value;
+  if(!fullName){ showToast('กรุณากรอกชื่อ-นามสกุล', true); return; }
+  if(!nickname){ showToast('กรุณากรอกชื่อเล่น', true); return; }
+  if(payType === 'perShift'){
+    if(!(Number(shiftRate) > 0)){ showToast('กรุณาระบุอัตราค่าตอบแทนต่อเวร (ต้องมากกว่า 0)', true); return; }
+  } else if(!(Number(hourlyRate) > 0)){
+    showToast('กรุณาระบุอัตราค่าตอบแทนต่อชั่วโมง (ต้องมากกว่า 0)', true); return;
+  }
+
+  const payload = {
+    entity: 'staff',
+    fullName, nickname,
+    role: document.getElementById('f_staffRole').value.trim(),
+    phone: document.getElementById('f_staffPhone').value.trim(),
+    payType: payType === 'perShift' ? 'เหมาต่อเวร' : 'รายชั่วโมง',
+    hourlyRate: payType === 'hourly' ? hourlyRate : '',
+    shiftRate: payType === 'perShift' ? shiftRate : '',
+    status: document.getElementById('f_staffStatus').value,
+    startDate: document.getElementById('f_staffStartDate').value,
+    notes: document.getElementById('f_staffNotes').value.trim()
+  };
+  if(editingStaffId) payload.id = editingStaffId;
+
+  const saveBtn = document.getElementById('btnStaffModalSave');
+  saveBtn.disabled = true;
+  try{
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.ok){
+      showToast(editingStaffId ? 'แก้ไขข้อมูลพนักงานเรียบร้อยแล้ว' : 'เพิ่มพนักงานเรียบร้อยแล้ว');
+      document.getElementById('staffModal').classList.remove('show');
+      await loadStaff();
+    } else {
+      showToast(data.error || 'บันทึกไม่สำเร็จ', true);
+    }
+  } catch(err){
+    showToast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง', true);
+  } finally {
+    saveBtn.disabled = false;
+  }
+});
+
+async function deleteStaff(id, name){
+  showConfirm(
+    'ยืนยันการลบพนักงาน',
+    `ต้องการลบข้อมูลของ "${name || 'รายการนี้'}" ใช่หรือไม่? การลบไม่สามารถย้อนกลับได้`,
+    async ()=>{
+      try{
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ entity: 'staff', deleteId: id })
+        });
+        const data = await res.json();
+        if(data.ok){
+          allStaff = allStaff.filter(s => String(s['id']) !== String(id));
+          renderStaffList();
+          refreshStaffNicknameList();
+          showToast('ลบข้อมูลพนักงานเรียบร้อยแล้ว');
+        } else {
+          showToast(data.error || 'ลบข้อมูลไม่สำเร็จ', true);
+        }
+      }catch(err){
+        showToast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง', true);
+      }
+    }
+  );
+}
+
+// โหลดรายชื่อพนักงานล่วงหน้าตอนเปิดแอป เพื่อให้ datalist ในฟอร์มเคสพร้อมใช้ทันที
+loadStaff();
 
 /* ============ EXPORT ============ */
 document.getElementById('btnExportExcel').addEventListener('click', ()=>{
