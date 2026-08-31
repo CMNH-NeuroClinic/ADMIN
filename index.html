@@ -1315,6 +1315,7 @@
             <th data-sort="วันเริ่มบริการ" class="sortable">เริ่มบริการ<span class="sort-arrow"></span></th>
             <th data-sort="สถานะ" class="sortable">สถานะ<span class="sort-arrow"></span></th>
             <th data-sort="ค่าบริการต่อเดือน (บาท)" class="sortable">ค่าบริการ/เดือน<span class="sort-arrow"></span></th>
+            <th>การชำระเงิน</th>
             <th data-sort="เจ้าหน้าที่ผู้ดูแล" class="sortable">เจ้าหน้าที่<span class="sort-arrow"></span></th>
             <th>จัดการ</th>
           </tr>
@@ -1483,12 +1484,60 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="paymentModal">
+  <div class="confirm-card" style="max-width:520px; text-align:left;">
+    <div class="confirm-title">บันทึกการชำระเงิน</div>
+    <div style="margin-top:6px;">
+      <div class="cell-name" id="paymentClientName" style="font-size:15px;">—</div>
+    </div>
+    <div class="inv-service-box" style="margin-top:10px;">
+      <div class="inv-service-row"><span>ยอดรวมทั้งหมด</span><b id="paymentFeeTotal">฿0</b></div>
+      <div class="inv-service-row"><span>ชำระแล้วสะสม</span><b id="paymentPaidTotal">฿0</b></div>
+      <div class="inv-service-row"><span>คงเหลือ</span><b id="paymentRemaining" style="color:var(--rose);">฿0</b></div>
+    </div>
+
+    <div class="field-grid cols-2" style="margin-top:14px;">
+      <div class="field">
+        <label>จำนวนเงินที่รับชำระ (บาท)<span class="req">*</span></label>
+        <input type="number" id="f_paymentAmount" placeholder="เช่น 5000" min="0">
+      </div>
+      <div class="field">
+        <label>วันที่ชำระ<span class="req">*</span></label>
+        <input type="date" id="f_paymentDate">
+      </div>
+      <div class="field">
+        <label>ช่องทางชำระ</label>
+        <select id="f_paymentMethod">
+          <option>เงินสด</option>
+          <option>โอนเงิน</option>
+          <option>บัตรเครดิต</option>
+          <option>อื่นๆ</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>หมายเหตุ</label>
+        <input type="text" id="f_paymentNote" placeholder="ระบุภายหลังได้">
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:16px; margin-bottom:6px;">
+      <span class="section-title" style="font-size:12.5px;">ประวัติการชำระเงิน</span>
+    </div>
+    <div id="paymentHistoryList" style="max-height:160px; overflow-y:auto;"><div class="dash-empty">ยังไม่มีประวัติการชำระ</div></div>
+
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="btnPaymentModalCancel" type="button">ปิด</button>
+      <button class="btn btn-primary" id="btnPaymentModalSave" type="button">บันทึกและออกใบเสร็จ</button>
+    </div>
+  </div>
+</div>
+
 
 
 <div class="modal-backdrop" id="invoiceModal">
   <div class="invoice-card paper-scope">
     <div class="invoice-topbar no-print" data-html2canvas-ignore="true">
-      <span>ใบสรุปแผนการดูแลและค่าบริการ</span>
+      <span id="invoiceTopbarTitle">ใบสรุปแผนการดูแลและค่าบริการ</span>
       <div class="invoice-topbar-actions">
         <button class="btn btn-ghost" style="padding:8px 14px; font-size:12.5px;" id="btnCopyInvoice" type="button">คัดลอกข้อความ</button>
         <button class="btn btn-ghost" style="padding:8px 14px; font-size:12.5px;" id="btnEmailInvoice" type="button">ส่งอีเมล</button>
@@ -1695,6 +1744,7 @@ let state = {
 };
 let webhookUrl = 'https://script.google.com/macros/s/AKfycbyd2aL8atlZw2hdO7NG0yP4dBN7DDCZAVu1EdD_LouRd3lpErIX04lBufWwkgnrWcfJgA/exec';
 let allRecords = [];
+let allPayments = [];
 let activeFilter = 'ทั้งหมด';
 let editingId = null;
 let isSaving = false;
@@ -3169,6 +3219,7 @@ function signatureBlockHtml(payload){
 }
 
 function openInvoice(payload, refId){
+  document.getElementById('invoiceTopbarTitle').textContent = 'ใบสรุปแผนการดูแลและค่าบริการ';
   const today = new Date();
   const docNo = 'INV-' + today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0') + (refId ? '-' + refId.slice(0,4).toUpperCase() : '');
   lastInvoiceFilename = `ใบสรุป-${(payload.clientName||'ลูกค้า').replace(/[\\/:*?"<>|]/g,'')}-${docNo}.pdf`;
@@ -3555,6 +3606,8 @@ filterOptions.forEach(f=>{
 document.getElementById('btnRefresh').addEventListener('click', loadRecords);
 document.getElementById('searchInput').addEventListener('input', renderRecords);
 document.getElementById('recordsBody').addEventListener('click', e=>{
+  const payBtn = e.target.closest('.icon-btn[data-payment-id]');
+  if(payBtn){ openPaymentModal(payBtn.dataset.paymentId); return; }
   const editBtn = e.target.closest('.icon-btn[data-edit-id]');
   if(editBtn){ editRecord(editBtn.dataset.editId); return; }
   const printBtn = e.target.closest('.icon-btn[data-print-id]');
@@ -3913,16 +3966,32 @@ function duplicateRecord(id){
 async function loadRecords(){
   showTableSkeleton();
   try{
-    const res = await fetch(webhookUrl);
-    const data = await res.json();
-    if(data.ok){
-      allRecords = data.records;
-      renderRecords();
-    }
+    const sep = webhookUrl.includes('?') ? '&' : '?';
+    const [recRes, payRes] = await Promise.all([
+      fetch(webhookUrl),
+      fetch(webhookUrl + sep + 'type=payments')
+    ]);
+    const data = await recRes.json();
+    const payData = await payRes.json();
+    if(data.ok) allRecords = data.records;
+    if(payData.ok) allPayments = payData.payments || [];
+    renderRecords();
   } catch(err){
     showToast('ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้', true);
     renderRecords();
   }
+}
+
+async function loadPayments(){
+  try{
+    const sep = webhookUrl.includes('?') ? '&' : '?';
+    const res = await fetch(webhookUrl + sep + 'type=payments');
+    const data = await res.json();
+    if(data.ok) allPayments = data.payments || [];
+  } catch(err){
+    showToast('ไม่สามารถโหลดข้อมูลการชำระเงินได้', true);
+  }
+  return allPayments;
 }
 
 function showTableSkeleton(){
@@ -3939,6 +4008,7 @@ function showTableSkeleton(){
       <td><div class="skel" style="width:55%;"></div></td>
       <td><div class="skel" style="width:65%;"></div></td>
       <td><div class="skel" style="width:45%;"></div></td>
+      <td><div class="skel" style="width:60%;"></div></td>
       <td><div class="skel" style="width:50%;"></div></td>
       <td><div class="skel" style="width:24px; height:24px; border-radius:6px;"></div></td>
     </tr>`).join('');
@@ -3953,6 +4023,22 @@ function getRecordFee(r){
   if(type === 'คอร์ส/โปรแกรมบริการ') return r['ราคาคอร์สรวม (บาท)'];
   if(type === 'แพ็กเกจรายวัน') return r['ยอดรวมแพ็กเกจรายวัน (บาท)'] || r['dailyPkgTotal'];
   return r['ค่าบริการต่อเดือน (บาท)'];
+}
+
+/* ============ PAYMENTS (การชำระเงิน / ใบเสร็จ) ============ */
+function getPaymentsForRecord(recordId){
+  return allPayments.filter(p => String(p['เคส id']) === String(recordId));
+}
+function getPaidTotal(recordId){
+  return getPaymentsForRecord(recordId).reduce((sum,p)=> sum + (Number(p['จำนวนเงิน (บาท)'])||0), 0);
+}
+function getPaymentStatus(r, fee, paidTotal){
+  const feeNum = Number(fee) || 0;
+  const paid = paidTotal !== undefined ? paidTotal : getPaidTotal(r['id']);
+  if(feeNum <= 0) return { label:'—', cls:'st-wait' };
+  if(paid <= 0) return { label:'ยังไม่ชำระ', cls:'st-cancel' };
+  if(paid < feeNum) return { label:'ชำระบางส่วน', cls:'st-hold' };
+  return { label:'ชำระครบแล้ว', cls:'st-active' };
 }
 
 function getSortValue(r, key){
@@ -4060,6 +4146,8 @@ function renderRecords(){
     } else {
       pkgCell = escapeHtml(r['แพ็กเกจ']||'—') + (Number(r['ค่าบริการหัตถการ (บาท)'])>0 ? `<div class="cell-sub">+ หัตถการเสริม ${escapeHtml(r['โซนบริการ']||'')}</div>` : '');
     }
+    const paidTotal = getPaidTotal(r['id']);
+    const payStatus = getPaymentStatus(r, fee, paidTotal);
     return `<tr>
       <td><div class="cell-name">${escapeHtml(r['ชื่อผู้รับบริการ']||'—')}</div><div class="cell-sub">${escapeHtml(r['ผู้ติดต่อ']||'')}</div></td>
       <td>${pkgCell}</td>
@@ -4067,9 +4155,13 @@ function renderRecords(){
       <td>${escapeHtml(cleanDateDisplay(r['วันเริ่มบริการ']))}</td>
       <td><span class="badge ${cls}">${escapeHtml(r['สถานะ']||'—')}</span></td>
       <td class="font-mono">${fee ? '฿'+Number(fee).toLocaleString() : '—'}</td>
+      <td><span class="badge ${payStatus.cls}">${payStatus.label}</span>${paidTotal > 0 ? `<div class="cell-sub">จ่ายแล้ว ฿${paidTotal.toLocaleString()}</div>` : ''}</td>
       <td>${escapeHtml(r['เจ้าหน้าที่ผู้ดูแล']||'—')}</td>
       <td>
         <div class="row-actions">
+          <button class="icon-btn" data-payment-id="${escapeHtml(r['id'])}" title="บันทึกการชำระเงิน / ออกใบเสร็จ">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.4" stroke="currentColor" stroke-width="1.7"/></svg>
+          </button>
           <button class="icon-btn" data-print-id="${escapeHtml(r['id'])}" title="พิมพ์ใบสรุปย้อนหลัง">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9V3h9l3 3v3M6 18H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-2M6 14h12M6 21h12v-4H6v4Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
@@ -4371,6 +4463,207 @@ async function deleteStaff(id, name){
 
 // โหลดรายชื่อพนักงานล่วงหน้าตอนเปิดแอป เพื่อให้ datalist ในฟอร์มเคสพร้อมใช้ทันที
 loadStaff();
+
+/* ============ PAYMENT MODAL (บันทึกการชำระเงิน + ออกใบเสร็จ) ============ */
+let currentPaymentRecordId = null;
+
+function openPaymentModal(recordId){
+  const record = allRecords.find(r => String(r['id']) === String(recordId));
+  if(!record){ showToast('ไม่พบข้อมูลเคสนี้', true); return; }
+  currentPaymentRecordId = recordId;
+  document.getElementById('f_paymentAmount').value = '';
+  document.getElementById('f_paymentDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('f_paymentMethod').value = 'เงินสด';
+  document.getElementById('f_paymentNote').value = '';
+  renderPaymentModalContent(record);
+  document.getElementById('paymentModal').classList.add('show');
+}
+
+function renderPaymentModalContent(record){
+  const fee = Number(getRecordFee(record)) || 0;
+  const payments = getPaymentsForRecord(record['id']).slice().sort((a,b)=> new Date(b['วันที่ชำระ']||0) - new Date(a['วันที่ชำระ']||0));
+  const paid = payments.reduce((s,p)=> s + (Number(p['จำนวนเงิน (บาท)'])||0), 0);
+  const remaining = Math.max(fee - paid, 0);
+
+  document.getElementById('paymentClientName').textContent = record['ชื่อผู้รับบริการ'] || '—';
+  document.getElementById('paymentFeeTotal').textContent = '฿' + fee.toLocaleString();
+  document.getElementById('paymentPaidTotal').textContent = '฿' + paid.toLocaleString();
+  document.getElementById('paymentRemaining').textContent = '฿' + remaining.toLocaleString();
+  document.getElementById('paymentRemaining').style.color = remaining > 0 ? 'var(--rose)' : 'var(--teal-700)';
+  if(!document.getElementById('f_paymentAmount').value && remaining > 0){
+    document.getElementById('f_paymentAmount').value = remaining;
+  }
+
+  const listEl = document.getElementById('paymentHistoryList');
+  listEl.innerHTML = payments.length ? payments.map(p=>`
+    <div class="hist-item">
+      <span><b>฿${(Number(p['จำนวนเงิน (บาท)'])||0).toLocaleString()}</b> · ${escapeHtml(cleanDateDisplay(p['วันที่ชำระ']))} · ${escapeHtml(p['ช่องทางชำระ']||'')}${p['หมายเหตุ'] ? ' · '+escapeHtml(p['หมายเหตุ']) : ''}</span>
+      <button class="icon-btn" data-payment-del="${p['id']}" title="ลบรายการนี้" style="color:var(--rose);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>`).join('') : '<div class="dash-empty">ยังไม่มีประวัติการชำระ</div>';
+}
+
+document.getElementById('btnPaymentModalCancel').addEventListener('click', ()=>{
+  document.getElementById('paymentModal').classList.remove('show');
+});
+
+document.getElementById('paymentHistoryList').addEventListener('click', (e)=>{
+  const delBtn = e.target.closest('.icon-btn[data-payment-del]');
+  if(!delBtn) return;
+  showConfirm(
+    'ยืนยันการลบรายการชำระเงิน',
+    'ต้องการลบรายการชำระเงินนี้ใช่หรือไม่? การลบไม่สามารถย้อนกลับได้',
+    async ()=>{
+      try{
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ entity: 'payment', deleteId: delBtn.dataset.paymentDel })
+        });
+        const data = await res.json();
+        if(data.ok){
+          allPayments = allPayments.filter(p => String(p['id']) !== String(delBtn.dataset.paymentDel));
+          const record = allRecords.find(r => String(r['id']) === String(currentPaymentRecordId));
+          if(record) renderPaymentModalContent(record);
+          renderRecords();
+          showToast('ลบรายการชำระเงินเรียบร้อยแล้ว');
+        } else {
+          showToast(data.error || 'ลบรายการไม่สำเร็จ', true);
+        }
+      }catch(err){
+        showToast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง', true);
+      }
+    }
+  );
+});
+
+document.getElementById('btnPaymentModalSave').addEventListener('click', async ()=>{
+  const amount = document.getElementById('f_paymentAmount').value;
+  if(!(Number(amount) > 0)){ showToast('กรุณาระบุจำนวนเงิน (ต้องมากกว่า 0)', true); return; }
+  if(!document.getElementById('f_paymentDate').value){ showToast('กรุณาระบุวันที่ชำระ', true); return; }
+  const record = allRecords.find(r => String(r['id']) === String(currentPaymentRecordId));
+  if(!record){ showToast('ไม่พบข้อมูลเคสนี้', true); return; }
+
+  const method = document.getElementById('f_paymentMethod').value;
+  const note = document.getElementById('f_paymentNote').value.trim();
+  const paymentDate = document.getElementById('f_paymentDate').value;
+  const payload = {
+    entity: 'payment',
+    recordId: currentPaymentRecordId,
+    clientName: record['ชื่อผู้รับบริการ'] || '',
+    amount, paymentDate, method, note,
+    recordedBy: document.getElementById('f_recordedBy').value
+  };
+
+  const saveBtn = document.getElementById('btnPaymentModalSave');
+  saveBtn.disabled = true;
+  try{
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.ok){
+      await loadPayments();
+      renderRecords();
+      renderPaymentModalContent(record);
+      document.getElementById('f_paymentAmount').value = '';
+      document.getElementById('f_paymentNote').value = '';
+      showToast('บันทึกการชำระเงินเรียบร้อยแล้ว');
+      document.getElementById('paymentModal').classList.remove('show');
+      openReceipt(record, { id: data.id, amount, paymentDate, method, note });
+    } else {
+      showToast(data.error || 'บันทึกไม่สำเร็จ', true);
+    }
+  } catch(err){
+    showToast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง', true);
+  } finally {
+    saveBtn.disabled = false;
+  }
+});
+
+function openReceipt(record, payment){
+  document.getElementById('invoiceTopbarTitle').textContent = 'ใบเสร็จรับเงิน';
+  const today = new Date();
+  const docNo = 'RCT-' + today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0') +
+    (payment.id ? '-' + String(payment.id).slice(-4).toUpperCase() : '');
+  const billingEntity = record['ออกเอกสารในนาม'] || 'CMCC Home Care by CMNH';
+  const fee = Number(getRecordFee(record)) || 0;
+  const paidTotal = getPaidTotal(record['id']);
+  const remaining = Math.max(fee - paidTotal, 0);
+  const amt = Number(payment.amount) || 0;
+  const itemLabel = record['แพ็กเกจ'] || record['ประเภทเคส'] || 'ค่าบริการ';
+  const pseudoPayload = { billingEntity };
+
+  lastInvoiceFilename = `ใบเสร็จ-${(record['ชื่อผู้รับบริการ']||'ลูกค้า').replace(/[\\/:*?"<>|]/g,'')}-${docNo}.pdf`;
+  lastInvoiceText = [
+    `${billingEntity} — ใบเสร็จรับเงิน`,
+    `เลขที่ใบเสร็จ: ${docNo}`,
+    `วันที่: ${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}`,
+    '',
+    `ได้รับเงินจาก: ${record['ชื่อผู้รับบริการ']}`,
+    `รายการ: ${itemLabel}`,
+    `จำนวนเงินที่ได้รับ: ฿${amt.toLocaleString()}`,
+    `ช่องทางชำระ: ${payment.method || '—'}`,
+    payment.note ? `หมายเหตุ: ${payment.note}` : '',
+    '',
+    `ยอดรวมทั้งหมดของเคสนี้: ฿${fee.toLocaleString()}`,
+    `ชำระแล้วสะสม: ฿${paidTotal.toLocaleString()}`,
+    `คงเหลือ: ฿${remaining.toLocaleString()}`,
+    '',
+    `ขอบคุณที่ไว้วางใจให้ ${billingEntity} ดูแลคนที่คุณรัก`
+  ].filter(Boolean).join('\n');
+
+  document.getElementById('invoiceBody').innerHTML = `
+    <table class="inv-wrapper-table">
+      <thead class="inv-thead">
+        <tr><td>
+          <div class="inv-head">
+            <div class="inv-brand">
+              <div class="inv-brand-mark">${invoiceLogoImg(pseudoPayload)}</div>
+              <div>
+                <div class="inv-brand-name">${escapeHtml(billingEntity)}</div>
+                ${clinicFullNameLine(pseudoPayload)}
+                <div class="inv-brand-sub">ใบเสร็จรับเงิน</div>
+              </div>
+            </div>
+            <div class="inv-meta">
+              เลขที่ใบเสร็จ <b>${docNo}</b><br>
+              วันที่ <b>${today.toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})}</b>
+            </div>
+          </div>
+        </td></tr>
+      </thead>
+      <tbody class="inv-tbody">
+        <tr><td>
+          <div class="inv-block-lbl">ได้รับเงินจาก</div>
+          <div class="inv-line"><b>${escapeHtml(record['ชื่อผู้รับบริการ']||'—')}</b></div>
+
+          <table class="inv-charges" style="margin-top:14px;">
+            <thead><tr><th>รายการ</th><th style="text-align:right;">จำนวนเงิน (บาท)</th></tr></thead>
+            <tbody>
+              <tr><td>${escapeHtml(itemLabel)}${payment.note ? `<br><span style="font-size:11px; color:var(--ink-faint);">${escapeHtml(payment.note)}</span>` : ''}</td><td class="amt">฿${amt.toLocaleString()}</td></tr>
+              <tr class="inv-total-row"><td>รับชำระเงินวันนี้</td><td class="amt">฿${amt.toLocaleString()}</td></tr>
+            </tbody>
+          </table>
+
+          <div class="inv-service-box" style="margin-top:14px;">
+            <div class="inv-service-row"><span>ช่องทางชำระ</span><b>${escapeHtml(payment.method||'—')}</b></div>
+            <div class="inv-service-row"><span>ยอดรวมทั้งหมดของเคสนี้</span><b>฿${fee.toLocaleString()}</b></div>
+            <div class="inv-service-row"><span>ชำระแล้วสะสม</span><b>฿${paidTotal.toLocaleString()}</b></div>
+            <div class="inv-service-row"><span>คงเหลือ</span><b style="color:${remaining>0?'var(--rose)':'var(--teal-700)'};">฿${remaining.toLocaleString()}</b></div>
+          </div>
+
+          ${signatureBlockHtml(pseudoPayload)}
+          <div class="inv-footer">ขอบคุณที่ไว้วางใจให้ ${escapeHtml(billingEntity)} ดูแลคนที่คุณรัก</div>
+        </td></tr>
+      </tbody>
+    </table>
+  `;
+  invoiceModal.classList.add('show');
+}
 
 /* ============ EXPORT ============ */
 document.getElementById('btnExportExcel').addEventListener('click', ()=>{
