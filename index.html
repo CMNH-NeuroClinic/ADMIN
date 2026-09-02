@@ -4542,6 +4542,7 @@ document.getElementById('btnPaymentModalSave').addEventListener('click', async (
   const amount = document.getElementById('f_paymentAmount').value;
   if(!(Number(amount) > 0)){ showToast('กรุณาระบุจำนวนเงิน (ต้องมากกว่า 0)', true); return; }
   if(!document.getElementById('f_paymentDate').value){ showToast('กรุณาระบุวันที่ชำระ', true); return; }
+  if(!currentPaymentRecordId){ showToast('ไม่พบรหัสเคสที่จะผูกการชำระเงินนี้ กรุณาปิดหน้าต่างแล้วลองกดใหม่อีกครั้ง', true); return; }
   const record = allRecords.find(r => String(r['id']) === String(currentPaymentRecordId));
   if(!record){ showToast('ไม่พบข้อมูลเคสนี้', true); return; }
 
