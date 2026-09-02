@@ -651,6 +651,12 @@
   .pay-summary-cell .lbl{font-size:12px; color:var(--ink-soft); font-weight:600; margin-bottom:6px;}
   .pay-summary-cell .val{font-family:'IBM Plex Mono'; font-weight:600; font-size:20px; color:var(--teal-900);}
   .pay-summary-cell.warn .val{color:var(--rose);}
+  .month-chart{display:flex; align-items:flex-end; gap:6px; height:160px; padding-top:6px;}
+  .month-bar-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0;}
+  .month-bar-track{width:100%; max-width:26px; flex:1; display:flex; align-items:flex-end; background:var(--paper-dim); border-radius:4px 4px 0 0; overflow:hidden;}
+  .month-bar{width:100%; background:linear-gradient(180deg, var(--teal-700), var(--teal-900)); border-radius:4px 4px 0 0; min-height:2px; transition:height .3s ease; cursor:default;}
+  .month-bar-label{font-size:10px; color:var(--ink-faint); margin-top:6px; white-space:nowrap;}
+  @media (max-width:820px){ .month-chart{height:130px;} }
   .dash-cols{display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px;}
   @media (max-width:1100px){ .dash-cols{grid-template-columns:1fr 1fr;} }
   @media (max-width:820px){ .dash-cols{grid-template-columns:1fr;} }
@@ -1366,6 +1372,23 @@
         <span class="section-title">💰 สรุปการชำระเงิน (ทุกเคส ทุกสถานะ)</span>
       </div>
       <div id="paymentSummaryBox"><div class="dash-empty">กำลังโหลด...</div></div>
+    </div>
+
+    <div class="dash-cols" style="grid-template-columns:1fr 1fr;">
+      <div class="section-card">
+        <div class="section-head">
+          <span class="section-title">📈 รายได้ตามเดือน</span>
+          <span class="section-hint">อิงวันเริ่มบริการ · ย้อนหลัง 12 เดือน</span>
+        </div>
+        <div id="revenueByMonthChart"><div class="dash-empty">กำลังโหลด...</div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-head">
+          <span class="section-title">💵 ยอดรับชำระตามเดือน</span>
+          <span class="section-hint">อิงวันที่ชำระจริง · ย้อนหลัง 12 เดือน</span>
+        </div>
+        <div id="paymentsByMonthChart"><div class="dash-empty">กำลังโหลด...</div></div>
+      </div>
     </div>
 
     <div class="dash-cols">
@@ -4204,6 +4227,39 @@ function parseDateSafe(v){
   return isNaN(d.getTime()) ? null : d;
 }
 
+function getLastNMonths(n){
+  const months = [];
+  const now = new Date();
+  for(let i = n - 1; i >= 0; i--){
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      key: d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'),
+      label: d.toLocaleDateString('th-TH', {month:'short', year:'2-digit'})
+    });
+  }
+  return months;
+}
+
+function renderMonthlyBarChart(containerId, dataByMonthKey, months){
+  const el = document.getElementById(containerId);
+  const maxVal = Math.max(...months.map(m => dataByMonthKey[m.key] || 0), 1);
+  const hasAnyData = months.some(m => (dataByMonthKey[m.key] || 0) > 0);
+  if(!hasAnyData){
+    el.innerHTML = '<div class="dash-empty">ยังไม่มีข้อมูลในช่วง 12 เดือนนี้</div>';
+    return;
+  }
+  el.innerHTML = `<div class="month-chart">` + months.map(m=>{
+    const val = dataByMonthKey[m.key] || 0;
+    const heightPct = Math.max(Math.round((val / maxVal) * 100), val > 0 ? 4 : 0);
+    return `<div class="month-bar-col">
+      <div class="month-bar-track" title="${m.label}: ฿${val.toLocaleString()}">
+        <div class="month-bar" style="height:${heightPct}%;"></div>
+      </div>
+      <div class="month-bar-label">${m.label}</div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
 function renderDashboard(){
   const active = allRecords.filter(r=>r['สถานะ']==='กำลังให้บริการ');
   const waiting = allRecords.filter(r=>r['สถานะ']==='รอประเมินหน้างาน');
@@ -4247,6 +4303,29 @@ function renderDashboard(){
       <div class="pay-summary-cell warn"><div class="lbl">คงค้างชำระ</div><div class="val">฿${totalOutstanding.toLocaleString()}</div></div>
     </div>
   `;
+
+  // กราฟรายเดือนย้อนหลัง 12 เดือน
+  const months = getLastNMonths(12);
+
+  // รายได้ตามเดือน — อิงวันเริ่มบริการของเคส (ทุกประเภทแพ็กเกจ ทุกสถานะ)
+  const revenueByMonth = {};
+  allRecords.forEach(r=>{
+    const d = parseDateSafe(r['วันเริ่มบริการ']);
+    if(!d) return;
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    revenueByMonth[key] = (revenueByMonth[key] || 0) + (Number(getRecordFee(r)) || 0);
+  });
+  renderMonthlyBarChart('revenueByMonthChart', revenueByMonth, months);
+
+  // ยอดรับชำระตามเดือน — อิงวันที่ชำระเงินจริง
+  const paymentsByMonth = {};
+  allPayments.forEach(p=>{
+    const d = parseDateSafe(p['วันที่ชำระ']);
+    if(!d) return;
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    paymentsByMonth[key] = (paymentsByMonth[key] || 0) + (Number(p['จำนวนเงิน (บาท)']) || 0);
+  });
+  renderMonthlyBarChart('paymentsByMonthChart', paymentsByMonth, months);
 
   const today = new Date(); today.setHours(0,0,0,0);
   const contractSoon = allRecords.filter(r=>{
